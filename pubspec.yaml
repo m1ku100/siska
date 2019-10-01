@@ -55,8 +55,6 @@ flutter:
   - assets/menu/siska.png
   - assets/menu/circle_siska.png
   - assets/menu/mitra.jpg
-  - assets/menu/google-plus-4-16.png
-  - assets/menu/facebook-2-24.png
   - assets/images/house.png
   - assets/images/sofa.png
   - assets/images/gadget.png
@@ -92,6 +90,10 @@ flutter:
   - assets/category/retail.png
   - assets/category/service.png
   - assets/category/telekomunikasi.png
+  - assets/menu/org.png
+  - assets/menu/cert.png
+  - assets/menu/edu.png
+  - assets/menu/exp.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
