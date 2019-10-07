@@ -94,6 +94,8 @@ flutter:
   - assets/menu/cert.png
   - assets/menu/edu.png
   - assets/menu/exp.png
+  - assets/menu/skill.png
+  - assets/menu/lang.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
