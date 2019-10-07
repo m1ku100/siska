@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:giffy_dialog/giffy_dialog.dart';
-
 import 'package:siska/views/Widgets/custom_shape.dart';
 
 class Profile extends StatefulWidget {
@@ -21,7 +24,8 @@ class _ProfileState extends State<Profile> {
 
   List dataJson;
 
-  
+  File _image;
+
   Future<String> getLatest() async {
     http.Response item = await http.get(
         Uri.encodeFull("http://siska.org/api/clients/vacancies/latest"),
@@ -33,7 +37,24 @@ class _ProfileState extends State<Profile> {
     print("Success Latest");
   }
 
-   void check_connecti() async {
+  Future getImageGallery() async {
+    var imageFile = await ImagePicker.pickImage(
+        source: ImageSource.gallery, maxHeight: 600, maxWidth: 800);
+
+    setState(() {
+      _image = imageFile;
+    });
+  }
+
+  Future getImageCamera() async {
+    var imageFile = await ImagePicker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      _image = imageFile;
+    });
+  }
+
+  void check_connecti() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -114,28 +135,85 @@ class _ProfileState extends State<Profile> {
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
                       ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.assignment_ind),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "Name" + "  (IDR)"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.cake),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "DOB"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.wc),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "Atleast " +
+                                          "GENDER" +
+                                          " years"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.wc),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "RELATIONSHIP"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.flag),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "NASIONALITY"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.attach_money),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "GAJI"),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                       ButtonTheme.bar(
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
-                          children: <Widget>[
-                            FlatButton(
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
-                                ],
-                              ),
-                              onPressed: () {/* ... */},
-                            ),
-                            FlatButton(
-                              child:  Row(
-                                children: <Widget>[
-                                  Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
-                                ],
-                              ),
-                              onPressed: () {/* ... */},
-                            ),
+                          children: <Widget>[   
                           ],
                         ),
                       ),
@@ -178,6 +256,128 @@ class _ProfileState extends State<Profile> {
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
                       ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.email),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "Email" + "  (IDR)"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.phone),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "TELP"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.wc),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "Atleast " +
+                                          "GENDER" +
+                                          " years"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.wc),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "RELATIONSHIP"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.flag),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "NASIONALITY"),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Icon(Icons.attach_money),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Text(dataJson == null
+                                      ? " "
+                                      : "GAJI"),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      ButtonTheme.bar(
+                        // make buttons use the appropriate styles for cards
+                        child: ButtonBar(
+                          children: <Widget>[
+                           
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 20, right: 30, top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text("WORK EXPERIENCE", style: TextStyle(fontSize: 16)),
+                    GestureDetector(
+                        onTap: () {
+                          // Navigator.of(context).pushNamed(TRENDING_UI);
+                          print('Showing all');
+                        },
+                        child: Text(
+                          'Add Data',
+                          style: TextStyle(
+                            color: Colors.orange[300],
+                          ),
+                        ))
+                  ],
+                ),
+              ),
+              Divider(),
+              Container(
+                margin: EdgeInsets.only(left: 10, right: 10, top: 5),
+                child: Card(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const ListTile(
+                        leading: Image(
+                          image: AssetImage("assets/menu/exp.png"),
+                        ),
+                        title: Text('The Enchanted Nightingale'),
+                        subtitle: Text(
+                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                      ),
                       ButtonTheme.bar(
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
@@ -185,17 +385,26 @@ class _ProfileState extends State<Profile> {
                             FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -268,17 +477,26 @@ class _ProfileState extends State<Profile> {
                             FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -319,7 +537,9 @@ class _ProfileState extends State<Profile> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const ListTile(
-                        leading: Icon(Icons.album),
+                        leading: Image(
+                          image: AssetImage("assets/menu/cert.png"),
+                        ),
                         title: Text('The Enchanted Nightingale'),
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
@@ -331,17 +551,26 @@ class _ProfileState extends State<Profile> {
                             FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -382,7 +611,9 @@ class _ProfileState extends State<Profile> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const ListTile(
-                        leading: Icon(Icons.album),
+                        leading: Image(
+                          image: AssetImage("assets/menu/org.png"),
+                        ),
                         title: Text('The Enchanted Nightingale'),
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
@@ -391,20 +622,29 @@ class _ProfileState extends State<Profile> {
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
                           children: <Widget>[
-                           FlatButton(
+                            FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -416,13 +656,12 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ),
-               Container(
+              Container(
                 margin: EdgeInsets.only(left: 20, right: 30, top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text("Skill",
-                        style: TextStyle(fontSize: 16)),
+                    Text("Skill", style: TextStyle(fontSize: 16)),
                     GestureDetector(
                         onTap: () {
                           // Navigator.of(context).pushNamed(TRENDING_UI);
@@ -445,7 +684,9 @@ class _ProfileState extends State<Profile> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const ListTile(
-                        leading: Icon(Icons.album),
+                        leading: Image(
+                          image: AssetImage("assets/menu/exp.png"),
+                        ),
                         title: Text('The Enchanted Nightingale'),
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
@@ -454,20 +695,29 @@ class _ProfileState extends State<Profile> {
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
                           children: <Widget>[
-                           FlatButton(
+                            FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -479,13 +729,12 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
               ),
-               Container(
+              Container(
                 margin: EdgeInsets.only(left: 20, right: 30, top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text("Language Skill",
-                        style: TextStyle(fontSize: 16)),
+                    Text("Language Skill", style: TextStyle(fontSize: 16)),
                     GestureDetector(
                         onTap: () {
                           // Navigator.of(context).pushNamed(TRENDING_UI);
@@ -508,7 +757,9 @@ class _ProfileState extends State<Profile> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const ListTile(
-                        leading: Icon(Icons.album),
+                        leading: Image(
+                          image: AssetImage("assets/menu/edu.png"),
+                        ),
                         title: Text('The Enchanted Nightingale'),
                         subtitle: Text(
                             'Music by Julie Gable. Lyrics by Sidney Stein.'),
@@ -520,17 +771,26 @@ class _ProfileState extends State<Profile> {
                             FlatButton(
                               child: Row(
                                 children: <Widget>[
-                                  Icon(Icons.delete, color: Colors.redAccent,),
-                                  Text('DELETE', style: TextStyle(color: Colors.redAccent),)
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  Text(
+                                    'DELETE',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
                             ),
                             FlatButton(
-                              child:  Row(
+                              child: Row(
                                 children: <Widget>[
                                   Icon(Icons.edit),
-                                  Text('EDIT', style: TextStyle(color: Colors.blueAccent),)
+                                  Text(
+                                    'EDIT',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  )
                                 ],
                               ),
                               onPressed: () {/* ... */},
@@ -579,10 +839,11 @@ class _ProfileState extends State<Profile> {
           ),
         ),
         Container(
-            margin: EdgeInsets.only(left: 40, right: 40, top: _height / 3.25),
+            margin: EdgeInsets.only(left: 40, right: 40, top: _height / 3.15),
             child: Container(
                 child: Center(
               child: Card(
+                elevation: 4,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
                 child: Column(
@@ -664,7 +925,7 @@ class _ProfileState extends State<Profile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Opacity(
-                  opacity: 0.5,
+                  opacity: 0.8,
                   child: Container(
                     margin: EdgeInsets.symmetric(vertical: 5),
                     child: GestureDetector(
@@ -676,39 +937,117 @@ class _ProfileState extends State<Profile> {
                         )),
                   ),
                 ),
-                Opacity(
-                  opacity: 0.5,
-                  child: GestureDetector(
-                      onTap: () {},
-                      child: Icon(
-                        Icons.notifications,
-                        color: Colors.black,
-                        size: _height / 30,
-                      )),
-                ),
+                // Opacity(
+                //   opacity: 0.5,
+                //   child: GestureDetector(
+                //       onTap: () {},
+                //       child: Icon(
+                //         Icons.notifications,
+                //         color: Colors.black,
+                //         size: _height / 30,
+                //       )),
+                // ),
               ],
             )),
         Container(
-            margin:
-                EdgeInsets.only(left: _width / 3, right: 20, top: _height / 12),
-            width: 150.0,
-            height: 150.0,
-            decoration: BoxDecoration(
-                color: Colors.orange[200],
-                image: DecorationImage(
-                    image: NetworkImage(
-                        'https://icon-library.net/images/avatar-icon/avatar-icon-4.jpg'),
-                    fit: BoxFit.cover),
-                borderRadius: BorderRadius.all(Radius.circular(75.0)),
-                boxShadow: [BoxShadow(blurRadius: 7.0, color: Colors.black)])),
-        Container(
           margin: EdgeInsets.only(
-              left: _width / 2.25, right: 20, top: _height / 3.5),
-          child: Text("Username",
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black54,
-                  fontSize: _height / 40)),
+            left: _width / 3.5,
+            right: 20,
+            top: _height / 12,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  print("Profile has tapped");
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Container(
+                            height: _height / 3,
+                            child: Form(
+                              child: Column(
+                                children: <Widget>[
+                                  FlatButton(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(Icons.image),
+                                        Text(" Take photo from gallery")
+                                      ],
+                                    ),
+                                    onPressed: getImageGallery,
+                                  ),
+                                  FlatButton(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(Icons.camera_alt),
+                                        Text(" Take photo from camera")
+                                      ],
+                                    ),
+                                    onPressed: getImageCamera,
+                                  ),
+                                  // Padding(
+                                  //   padding: EdgeInsets.all(8.0),
+                                  //   child: TextFormField(),
+                                  // ),
+                                  // Padding(
+                                  //   padding: EdgeInsets.all(8.0),
+                                  //   child: TextFormField(),
+                                  // ),
+                                  Expanded(
+                                    child: Container(),
+                                  ),
+                                  RaisedButton(
+                                    color: Colors.orangeAccent,
+                                    onPressed: () {},
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.file_upload,
+                                          color: Colors.white,
+                                        ),
+                                        Text(
+                                          " Upload Ava",
+                                          style: TextStyle(color: Colors.white),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                },
+                child: Container(
+                  width: 150.0,
+                  height: 150.0,
+                  decoration: BoxDecoration(
+                      color: Colors.orange[200],
+                      image: DecorationImage(
+                          image: NetworkImage(
+                              'https://icon-library.net/images/avatar-icon/avatar-icon-4.jpg'),
+                          fit: BoxFit.cover),
+                      borderRadius: BorderRadius.all(Radius.circular(75.0)),
+                      boxShadow: [
+                        BoxShadow(blurRadius: 7.0, color: Colors.black)
+                      ]),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                child: Text("Ilham Puji Saputra",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                        fontSize: _height / 40)),
+              )
+            ],
+          ),
         )
       ],
     );
