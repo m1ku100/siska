@@ -1,4 +1,4 @@
-String BASE_URL = '',
+String BASE_URL = "http://siska.org/api/",
 SPLASH_SCREEN='/SplashScreen',
 PAY_TM='/Home',
 LOGIN_SCREEN = '/Login' ,

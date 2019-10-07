@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:siska/views/Widgets/mainui_customcard.dart';
+import 'package:siska/constant/Constant.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:siska/views/detail.dart';
 
@@ -30,7 +30,7 @@ class _JobState extends State<Job> {
      * Fetch Data from Uri
      */
     http.Response item = await http.get(
-        Uri.encodeFull("http://siska.org/api/clients/vacancies"),
+        Uri.encodeFull( BASE_URL+"clients/vacancies"),
         headers: {"Accept": "application/json"});
 
     this.setState(() {

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:siska/views/Widgets/mainui_customcard.dart';
+import 'package:siska/constant/Constant.dart';
 
 class Detail extends StatefulWidget {
   final int id;
@@ -32,7 +33,7 @@ class _DetailState extends State<Detail> {
      */
     http.Response item = await http.get(
         Uri.encodeFull(
-            "http://siska.org/api/clients/vacancies/" + id.toString()),
+            BASE_URL+"clients/vacancies/" + id.toString()),
         headers: {"Accept": "application/json"});
 
     this.setState(() {

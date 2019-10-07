@@ -31,7 +31,7 @@ class _HomeState extends State<Home> {
 
   Future<String> getLatest() async {
     http.Response item = await http.get(
-        Uri.encodeFull("http://siska.org/api/clients/vacancies/latest"),
+        Uri.encodeFull( BASE_URL+"clients/vacancies/latest"),
         headers: {"Accept": "application/json"});
 
     this.setState(() {
@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
 
   Future<String> getFavorite() async {
     http.Response item = await http.get(
-        Uri.encodeFull("http://siska.org/api/clients/vacancies/favorite"),
+        Uri.encodeFull( BASE_URL+"clients/vacancies/favorite"),
         headers: {"Accept": "application/json"});
 
     this.setState(() {
