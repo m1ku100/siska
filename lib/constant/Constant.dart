@@ -1,4 +1,5 @@
-String BASE_URL = "http://siska.org/api/",
+String BASE_URL = "https://kariernesia.com/api/",
+AUTH = "https://kariernesia.com/jwt/",
 SPLASH_SCREEN='/SplashScreen',
 PAY_TM='/Home',
 LOGIN_SCREEN = '/Login' ,

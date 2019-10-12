@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:siska/constant/Constant.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
 
   Future<String> getLatest() async {
     http.Response item = await http.get(
-        Uri.encodeFull( BASE_URL+"clients/vacancies/latest"),
+        Uri.encodeFull(BASE_URL + "clients/vacancies/latest"),
         headers: {"Accept": "application/json"});
 
     this.setState(() {
@@ -42,7 +43,7 @@ class _HomeState extends State<Home> {
 
   Future<String> getFavorite() async {
     http.Response item = await http.get(
-        Uri.encodeFull( BASE_URL+"clients/vacancies/favorite"),
+        Uri.encodeFull(BASE_URL + "clients/vacancies/favorite"),
         headers: {"Accept": "application/json"});
 
     this.setState(() {
@@ -89,6 +90,12 @@ class _HomeState extends State<Home> {
     );
 
     showDialog(context: context, child: alert);
+  }
+
+  _logout() async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.clear();
+    Navigator.of(context).pushReplacementNamed(LOGIN_SCREEN);
   }
 
   @override
@@ -219,45 +226,53 @@ class _HomeState extends State<Home> {
           Opacity(
             opacity: 0.75,
             child: Container(
-              height: _height / 6,
-              padding: EdgeInsets.only(top: _height / 20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.orange[200], Colors.pinkAccent],
-                ),
-              ),
-              child: GestureDetector(
-                onTap: () => {
-                  print("Profile Has Pressed"),
-                  Navigator.pushNamed(context,PROFILE)
-                },
-                child: ListTile(
-                leading: CircleAvatar(
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Colors.black,
+                height: _height / 6,
+                padding: EdgeInsets.only(top: _height / 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange[200], Colors.pinkAccent],
                   ),
-                  radius: 30,
-                  backgroundColor: Colors.white,
                 ),
-                title: Text("FlutterDevs"),
-                subtitle: Text(
-                  "flutterDevs@aeologic.com",
-                  style: TextStyle(fontSize: 13),
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.black,
-                ),
-              ),
-              )
-            ),
+                child: GestureDetector(
+                  onTap: () => {
+                    print("Profile Has Pressed"),
+                    Navigator.pushNamed(context, PROFILE)
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Colors.black,
+                      ),
+                      radius: 30,
+                      backgroundColor: Colors.white,
+                    ),
+                    title: Text("FlutterDevs"),
+                    subtitle: Text(
+                      "flutterDevs@aeologic.com",
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.black,
+                    ),
+                  ),
+                )),
           ),
           ListTile(
             leading: Icon(Icons.payment),
             title: Text("Orders & Payments"),
           ),
+          GestureDetector(
+            onTap: (){
+              _logout();
+            },
+            child: ListTile(
+              leading: Icon(Icons.power_settings_new),
+              title: Text("Logout"),
+            ),
+          )
         ],
       ),
     );
