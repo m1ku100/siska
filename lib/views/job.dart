@@ -20,6 +20,7 @@ class _JobState extends State<Job> {
   List dataJson;
   double _width;
   double _height;
+  int _limit = 10;
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
   RefreshController _refreshController =
@@ -30,7 +31,7 @@ class _JobState extends State<Job> {
      * Fetch Data from Uri
      */
     http.Response item = await http.get(
-        Uri.encodeFull( BASE_URL+"clients/vacancies"),
+        Uri.encodeFull( "http://10.60.103.78:8000/api/clients/vacancies/get/"+_limit.toString()),
         headers: {"Accept": "application/json"});
 
     this.setState(() {
@@ -95,10 +96,17 @@ class _JobState extends State<Job> {
 
   void _onLoading() async {
     // monitor network fetch
+    print(_limit);
     await Future.delayed(Duration(milliseconds: 1000));
     // if failed,use loadFailed(),if no data return,use LoadNodata()
-    items.add((items.length + 1).toString());
-    if (mounted) setState(() {});
+    setState(() {
+     _limit = _limit + 10; 
+    });
+    print(_limit);
+    this.check_connecti();
+    // items.add((items.length + 1).toString());
+    // if (mounted) setState(() {});
+    print("Loading Complete");
     _refreshController.loadComplete();
   }
 
@@ -122,6 +130,7 @@ class _JobState extends State<Job> {
       ),
       body: SmartRefresher(
         enablePullDown: true,
+        enablePullUp: true,
         header: WaterDropHeader(),
         footer: CustomFooter(
           builder: (BuildContext context, LoadStatus mode) {
@@ -145,6 +154,7 @@ class _JobState extends State<Job> {
         ),
         controller: _refreshController,
         onRefresh: _onRefresh,
+        onLoading: _onLoading,
         child: ListView.builder(
           padding: EdgeInsets.all(5),
           shrinkWrap: true,
