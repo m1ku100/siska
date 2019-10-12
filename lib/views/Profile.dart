@@ -127,13 +127,12 @@ class _ProfileState extends State<Profile> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const ListTile(
-                        leading: Image(
-                          image: AssetImage("assets/menu/edu.png"),
+                      Container(
+                        child: ButtonBar(
+                          children: <Widget>[
+
+                          ],
                         ),
-                        title: Text('The Enchanted Nightingale'),
-                        subtitle: Text(
-                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 10, right: 10),
@@ -248,13 +247,12 @@ class _ProfileState extends State<Profile> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      const ListTile(
-                        leading: Image(
-                          image: AssetImage("assets/menu/edu.png"),
+                      Container(
+                        child: ButtonBar(
+                          children: <Widget>[
+                            
+                          ],
                         ),
-                        title: Text('The Enchanted Nightingale'),
-                        subtitle: Text(
-                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
                       ),
                       Container(
                         margin: EdgeInsets.only(left: 10, right: 10),
@@ -267,7 +265,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Email" + "  (IDR)"),
+                                      : "Email" )
                                 )
                               ],
                             ),
@@ -284,47 +282,23 @@ class _ProfileState extends State<Profile> {
                             ),
                             Row(
                               children: <Widget>[
-                                Icon(Icons.wc),
+                                Icon(Icons.home),
                                 Container(
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Atleast " +
-                                          "GENDER" +
-                                          " years"),
+                                      : "Jalan Bla bla bla " ),
                                 )
                               ],
                             ),
                             Row(
                               children: <Widget>[
-                                Icon(Icons.wc),
+                                Icon(Icons.chrome_reader_mode),
                                 Container(
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "RELATIONSHIP"),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Icon(Icons.flag),
-                                Container(
-                                  margin: EdgeInsets.only(left: 10),
-                                  child: Text(dataJson == null
-                                      ? " "
-                                      : "NASIONALITY"),
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Icon(Icons.attach_money),
-                                Container(
-                                  margin: EdgeInsets.only(left: 10),
-                                  child: Text(dataJson == null
-                                      ? " "
-                                      : "GAJI"),
+                                      : "Pos"),
                                 )
                               ],
                             ),
