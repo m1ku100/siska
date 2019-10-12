@@ -4,17 +4,23 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:siska/views/style/theme.dart' as Theme;
 import 'package:siska/views/utils/bubble_indication_painter.dart';
 import 'package:siska/constant/Constant.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'dart:convert';
+import 'dart:async';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key key}) : super(key: key);
   @override
   _LoginScreenState createState() => new _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
- 
+
   final FocusNode myFocusNodeEmailLogin = FocusNode();
   final FocusNode myFocusNodePasswordLogin = FocusNode();
 
@@ -28,6 +34,9 @@ class _LoginScreenState extends State<LoginScreen>
   bool _obscureTextLogin = true;
   bool _obscureTextSignup = true;
   bool _obscureTextSignupConfirm = true;
+  bool _loginIndicator = true;
+
+  String msg, username;
 
   TextEditingController signupEmailController = new TextEditingController();
   TextEditingController signupNameController = new TextEditingController();
@@ -42,79 +51,152 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-     return new Scaffold(
+    return new Scaffold(
       key: _scaffoldKey,
       body: NotificationListener<OverscrollIndicatorNotification>(
         onNotification: (overscroll) {
           overscroll.disallowGlow();
         },
         child: SingleChildScrollView(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height >= 775.0
-                    ? MediaQuery.of(context).size.height
-                    : 775.0,
-                decoration: new BoxDecoration(
-                  gradient: new LinearGradient(
-                      colors: [
-                        Theme.Colors.loginGradientStart,
-                        Theme.Colors.loginGradientEnd
-                      ],
-                      begin: const FractionalOffset(0.0, 0.0),
-                      end: const FractionalOffset(1.0, 1.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(top: 75.0),
-                      child: new Image(
-                          width: 200.0,
-                          height: 200.0,
-                          fit: BoxFit.fill,
-                          image: new AssetImage('assets/menu/circle_siska.png')),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: _buildMenuBar(context),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (i) {
-                          if (i == 0) {
-                            setState(() {
-                              right = Colors.white;
-                              left = Colors.black;
-                            });
-                          } else if (i == 1) {
-                            setState(() {
-                              right = Colors.black;
-                              left = Colors.white;
-                            });
-                          }
-                        },
-                        children: <Widget>[
-                          new ConstrainedBox(
-                            constraints: const BoxConstraints.expand(),
-                            child: _buildSignIn(context),
-                          ),
-                          new ConstrainedBox(
-                            constraints: const BoxConstraints.expand(),
-                            child: _buildSignUp(context),
-                          ),
-                        ],
-                      ),
-                    ),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height >= 775.0
+                ? MediaQuery.of(context).size.height
+                : 775.0,
+            decoration: new BoxDecoration(
+              gradient: new LinearGradient(
+                  colors: [
+                    Theme.Colors.loginGradientStart,
+                    Theme.Colors.loginGradientEnd
                   ],
-                ),
-              ),
+                  begin: const FractionalOffset(0.0, 0.0),
+                  end: const FractionalOffset(1.0, 1.0),
+                  stops: [0.0, 1.0],
+                  tileMode: TileMode.clamp),
             ),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 75.0),
+                  child: new Image(
+                      width: 200.0,
+                      height: 200.0,
+                      fit: BoxFit.fill,
+                      image: new AssetImage('assets/menu/circle_siska.png')),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: _buildMenuBar(context),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (i) {
+                      if (i == 0) {
+                        setState(() {
+                          right = Colors.white;
+                          left = Colors.black;
+                        });
+                      } else if (i == 1) {
+                        setState(() {
+                          right = Colors.black;
+                          left = Colors.white;
+                        });
+                      }
+                    },
+                    children: <Widget>[
+                      new ConstrainedBox(
+                        constraints: const BoxConstraints.expand(),
+                        child: _buildSignIn(context),
+                      ),
+                      new ConstrainedBox(
+                        constraints: const BoxConstraints.expand(),
+                        child: _buildSignUp(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
+  }
+
+  Future<List> _login() async {
+    print(loginEmailController.text + " " + loginPasswordController.text);
+
+    var data = jsonEncode({
+      "email": loginEmailController.text,
+      "password": loginPasswordController.text,
+    });
+    print(data);
+    final response = await http.post(AUTH+"login", body: data);
+
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {
+        msg = "Login Fail";
+      });
+    } else {
+      if (datauser['success'] == false) {
+        // Navigator.pushReplacementNamed(context, '/AdminPage');
+        _showAlert("Oops!!", datauser['error'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        // Navigator.pushReplacementNamed(context, '/MemberPage');
+        // _showAlert("Success", datauser['access_token']);
+        savePref(datauser['access_token']);
+        _loginLogic();
+      }
+    }
+  }
+
+  Future<List> _register() async {
+    var data = jsonEncode({
+      "name": signupNameController.text,
+      "email": signupEmailController.text,
+      "password": signupPasswordController.text,
+      "repassword": signupConfirmPasswordController.text
+    });
+    final response =
+        await http.post(AUTH+"register", body: data);
+
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {
+        msg = "Login Fail";
+      });
+    } else {
+      if (datauser['success'] == false) {
+        // Navigator.pushReplacementNamed(context, '/AdminPage');
+        _showAlert("Oops!!", datauser['error'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {}
+    }
+  }
+
+  savePref(String jwt) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      preferences.setString("token", jwt);
+      preferences.commit();
+    });
+  }
+
+  var token;
+  getPref() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      token = preferences.getString("token");
+    });
+    if (token != null) {
+      print("Token Accepted");
+      Navigator.of(context).pushReplacementNamed(PAY_TM);
+    }
   }
 
   @override
@@ -136,6 +218,8 @@ class _LoginScreenState extends State<LoginScreen>
     ]);
 
     _pageController = PageController();
+
+    getPref();
   }
 
   void showInSnackBar(String value) {
@@ -156,11 +240,31 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _loginLogic() {
-    print("Button was pressed");
+    // print("Button was pressed");
     Navigator.of(context).pushReplacementNamed(PAY_TM);
   }
 
-Widget _buildMenuBar(BuildContext context) {
+  void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
+
+    AssetGiffyDialog alert = new AssetGiffyDialog(
+      image: Image.asset(assets),
+      title: Text(
+        titl,
+        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+      ),
+      description: Text(desc),
+      onOkButtonPressed: () {
+        Navigator.pop(context);
+      },
+      onlyOkButton: true,
+      buttonOkColor: Colors.orange[200],
+    );
+
+    showDialog(context: context, child: alert);
+  }
+
+  Widget _buildMenuBar(BuildContext context) {
     return Container(
       width: 300.0,
       height: 50.0,
@@ -337,9 +441,10 @@ Widget _buildMenuBar(BuildContext context) {
                       ),
                     ),
                     onPressed: () => {
-                        //Login Logic
-                       _loginLogic()
-                    }),
+                          //Login Logic
+                          // _loginLogic()
+                          _login()
+                        }),
               ),
             ],
           ),
@@ -600,49 +705,50 @@ Widget _buildMenuBar(BuildContext context) {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: 340.0),
-                decoration: new BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Theme.Colors.loginGradientStart,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                    BoxShadow(
-                      color: Theme.Colors.loginGradientEnd,
-                      offset: Offset(1.0, 6.0),
-                      blurRadius: 20.0,
-                    ),
-                  ],
-                  gradient: new LinearGradient(
-                      colors: [
-                        Theme.Colors.loginGradientEnd,
-                        Theme.Colors.loginGradientStart
-                      ],
-                      begin: const FractionalOffset(0.2, 0.2),
-                      end: const FractionalOffset(1.0, 1.0),
-                      stops: [0.0, 1.0],
-                      tileMode: TileMode.clamp),
-                ),
-                child: MaterialButton(
-                    highlightColor: Colors.transparent,
-                    splashColor: Theme.Colors.loginGradientEnd,
-                    //shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 42.0),
-                      child: Text(
-                        "SIGN UP",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 25.0,
-                            fontFamily: "WorkSansBold"),
+                  margin: EdgeInsets.only(top: 340.0),
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color: Theme.Colors.loginGradientStart,
+                        offset: Offset(1.0, 6.0),
+                        blurRadius: 20.0,
                       ),
-                    ),
-                    onPressed: () =>
-                        showInSnackBar("SignUp button pressed")),
-              ),
+                      BoxShadow(
+                        color: Theme.Colors.loginGradientEnd,
+                        offset: Offset(1.0, 6.0),
+                        blurRadius: 20.0,
+                      ),
+                    ],
+                    gradient: new LinearGradient(
+                        colors: [
+                          Theme.Colors.loginGradientEnd,
+                          Theme.Colors.loginGradientStart
+                        ],
+                        begin: const FractionalOffset(0.2, 0.2),
+                        end: const FractionalOffset(1.0, 1.0),
+                        stops: [0.0, 1.0],
+                        tileMode: TileMode.clamp),
+                  ),
+                  child: MaterialButton(
+                      highlightColor: Colors.transparent,
+                      splashColor: Theme.Colors.loginGradientEnd,
+                      //shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 42.0),
+                        child: Text(
+                          "REGISTER",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25.0,
+                              fontFamily: "WorkSansBold"),
+                        ),
+                      ),
+                      onPressed: () => {
+                            //Register Logic
+                            _register()
+                          })),
             ],
           ),
         ],
@@ -677,6 +783,4 @@ Widget _buildMenuBar(BuildContext context) {
       _obscureTextSignupConfirm = !_obscureTextSignupConfirm;
     });
   }
-
-
 }
