@@ -31,6 +31,7 @@ dependencies:
   pull_to_refresh: ^1.5.5
   giffy_dialog: ^1.3.0
   font_awesome_flutter: ^8.0.1
+  shared_preferences: ^0.5.3+4
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,8 @@ flutter:
   - assets/images/dress.png
   - assets/images/menubutton.png
   - assets/images/no_connection.gif
+  - assets/images/email_check.gif
+  - assets/images/load.gif
   - assets/category/asuransi.png
   - assets/category/bank.png
   - assets/category/construction.png
