@@ -31,26 +31,33 @@ class _DetailState extends State<Detail> {
     /**
      * Fetch Data from Uri
      */
-    http.Response item = await http.get(
-        Uri.encodeFull(
-            BASE_URL+"clients/vacancies/" + id.toString()),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(BASE_URL + "clients/vacancies/" + id.toString()),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      dataJson = json.decode(item.body);
-    });
-    print("success");
+      this.setState(() {
+        dataJson = json.decode(item.body);
+      });
+      print("success");
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<String> getFavorite() async {
-    http.Response item = await http.get(
-        Uri.encodeFull("http://siska.org/api/clients/vacancies/favorite"),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(BASE_URL + "clients/vacancies/favorite"),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      dataFavorite = jsonDecode(item.body);
-    });
-    print("Success Favorite");
+      this.setState(() {
+        dataFavorite = jsonDecode(item.body);
+      });
+      print("Success Favorite");
+    } catch (e) {
+      print(e);
+    }
   }
 
   void check_connecti() async {
@@ -221,7 +228,9 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.account_balance_wallet),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " : dataJson["salary"]+"  (IDR)"),
+                                child: Text(dataJson == null
+                                    ? " "
+                                    : dataJson["salary"] + "  (IDR)"),
                               )
                             ],
                           ),
@@ -230,7 +239,8 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.pin_drop),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " : dataJson["city"]),
+                                child: Text(
+                                    dataJson == null ? " " : dataJson["city"]),
                               )
                             ],
                           ),
@@ -239,7 +249,11 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.business_center),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " :"Atleast "+ dataJson["pengalaman"] + " years"),
+                                child: Text(dataJson == null
+                                    ? " "
+                                    : "Atleast " +
+                                        dataJson["pengalaman"] +
+                                        " years"),
                               )
                             ],
                           ),
@@ -248,7 +262,9 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.business),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " : dataJson["job_func"]),
+                                child: Text(dataJson == null
+                                    ? " "
+                                    : dataJson["job_func"]),
                               )
                             ],
                           ),
@@ -257,7 +273,9 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.school),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " : dataJson["degrees"]),
+                                child: Text(dataJson == null
+                                    ? " "
+                                    : dataJson["degrees"]),
                               )
                             ],
                           ),
@@ -266,11 +284,12 @@ class _DetailState extends State<Detail> {
                               Icon(Icons.account_balance),
                               Container(
                                 margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null ? " " : dataJson["majors"]),
+                                child: Text(dataJson == null
+                                    ? " "
+                                    : dataJson["majors"]),
                               )
                             ],
                           ),
-                          
                         ],
                       ),
                     ),

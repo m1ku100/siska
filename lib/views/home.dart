@@ -20,36 +20,63 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  var dataJson;
 
   bool isExpanded = false;
-  List dataJson, datalatest, dataFavorite;
+  List datalatest, dataFavorite;
   List<Category> categoryItems;
   List<Product> trendingListItems;
   List<Product> recommendListItems;
   List<Product> dealsListItems;
   double _height;
   double _width;
+  String _token;
 
   Future<String> getLatest() async {
-    http.Response item = await http.get(
-        Uri.encodeFull(BASE_URL + "clients/vacancies/latest"),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/api/clients/vacancies/latest"),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      datalatest = jsonDecode(item.body);
-    });
-    print("Success Latest");
+      this.setState(() {
+        datalatest = jsonDecode(item.body);
+      });
+      print("Success Latest");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> getUser() async {
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(AUTH + "me?token=" + _token),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataJson = jsonDecode(item.body);
+      });
+      print("Success Users");
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<String> getFavorite() async {
-    http.Response item = await http.get(
-        Uri.encodeFull(BASE_URL + "clients/vacancies/favorite"),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/api/clients/vacancies/favorite"),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      dataFavorite = jsonDecode(item.body);
-    });
-    print("Success Favorite");
+      this.setState(() {
+        dataFavorite = jsonDecode(item.body);
+      });
+      print("Success Favorite");
+    } catch (e) {
+      print(e);
+    }
   }
 
   void check_connecti() async {
@@ -57,6 +84,7 @@ class _HomeState extends State<Home> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         this.getLatest();
+        await this.getUser();
         await this.getFavorite();
       }
     } on SocketException catch (_) {
@@ -92,7 +120,14 @@ class _HomeState extends State<Home> {
     showDialog(context: context, child: alert);
   }
 
-  _logout() async{
+  _loadToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (preferences.getString("token") ?? "");
+    });
+  }
+
+  _logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.clear();
     Navigator.of(context).pushReplacementNamed(LOGIN_SCREEN);
@@ -102,6 +137,7 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    this._loadToken();
     this.check_connecti();
   }
 
@@ -234,23 +270,26 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 child: GestureDetector(
-                  onTap: () => {
-                    print("Profile Has Pressed"),
-                    Navigator.pushNamed(context, PROFILE)
-                  },
+                  onTap: () =>
+                      {print(_token), Navigator.pushNamed(context, PROFILE)},
                   child: ListTile(
                     leading: CircleAvatar(
-                      child: Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.black,
+                      child: Container(
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        decoration: new BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: new DecorationImage(
+                                fit: BoxFit.fill,
+                                image: new NetworkImage(dataJson == null
+                                    ? " "
+                                    : dataJson["user"]["ava"]))),
                       ),
                       radius: 30,
                       backgroundColor: Colors.white,
                     ),
-                    title: Text("FlutterDevs"),
+                    title: Text(dataJson == null ? " " : dataJson["name"]),
                     subtitle: Text(
-                      "flutterDevs@aeologic.com",
+                      dataJson == null ? " " : dataJson["email"],
                       style: TextStyle(fontSize: 13),
                     ),
                     trailing: Icon(
@@ -265,7 +304,7 @@ class _HomeState extends State<Home> {
             title: Text("Orders & Payments"),
           ),
           GestureDetector(
-            onTap: (){
+            onTap: () {
               _logout();
             },
             child: ListTile(

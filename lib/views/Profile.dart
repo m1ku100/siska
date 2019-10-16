@@ -3,13 +3,16 @@ import 'package:flutter/services.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:async/async.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:siska/views/Widgets/custom_shape.dart';
+import 'package:siska/constant/Constant.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -18,23 +21,65 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  var dataJson, upload_res;
 
   double _height;
   double _width;
-
-  List dataJson;
-
+  String _token;
+  bool _isLoading = false;
   File _image;
 
   Future<String> getLatest() async {
-    http.Response item = await http.get(
-        Uri.encodeFull("http://siska.org/api/clients/vacancies/latest"),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(AUTH + "profile/me?token=" + _token),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      dataJson = jsonDecode(item.body);
+      this.setState(() {
+        dataJson = jsonDecode(item.body);
+      });
+      print("Success user");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future upload(File image) async {
+    setState(() {
+      _isLoading = true;
     });
-    print("Success Latest");
+    var stream = new http.ByteStream(DelegatingStream.typed(image.openRead()));
+    var length = await image.length();
+    var uri = Uri.parse(AUTH + "profile/upload/ava?token=" + _token);
+
+    var request = new http.MultipartRequest("POST", uri);
+
+//set value dan dikirim ke server
+    var multipart = new http.MultipartFile("image", stream, length,
+        filename: path.basename(image.path));
+
+    request.files.add(multipart);
+
+    var response = await request.send();
+    // this.setState(() {
+    //   upload_res = jsonDecode(response.);
+    // });
+    if (response.statusCode == 200) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showAlert("Upload Success");
+    } else if (response.statusCode == 500) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showAlert("server error");
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      _showAlert("Upload Failed");
+    }
   }
 
   Future getImageGallery() async {
@@ -51,6 +96,13 @@ class _ProfileState extends State<Profile> {
 
     setState(() {
       _image = imageFile;
+    });
+  }
+
+  _loadToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (preferences.getString("token") ?? "");
     });
   }
 
@@ -88,6 +140,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     // TODO: implement initState
     // super.initState();
+    this._loadToken();
     this.check_connecti();
   }
 
@@ -129,9 +182,7 @@ class _ProfileState extends State<Profile> {
                     children: <Widget>[
                       Container(
                         child: ButtonBar(
-                          children: <Widget>[
-
-                          ],
+                          children: <Widget>[],
                         ),
                       ),
                       Container(
@@ -145,7 +196,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Name" + "  (IDR)"),
+                                      : dataJson["name"]),
                                 )
                               ],
                             ),
@@ -156,7 +207,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "DOB"),
+                                      : dataJson["seeker"]["data"]["birthday"]),
                                 )
                               ],
                             ),
@@ -167,9 +218,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Atleast " +
-                                          "GENDER" +
-                                          " years"),
+                                      : dataJson["seeker"]["data"]["gender"]),
                                 )
                               ],
                             ),
@@ -180,7 +229,8 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "RELATIONSHIP"),
+                                      : dataJson["seeker"]["data"]
+                                          ["relationship"]),
                                 )
                               ],
                             ),
@@ -191,7 +241,8 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "NASIONALITY"),
+                                      : dataJson["seeker"]["data"]
+                                          ["nationality"]),
                                 )
                               ],
                             ),
@@ -202,7 +253,11 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "GAJI"),
+                                      : dataJson["seeker"]["data"]
+                                              ["lowest_salary"] +
+                                          " - " +
+                                          dataJson["seeker"]["data"]
+                                              ["highest_salary"]),
                                 )
                               ],
                             ),
@@ -212,8 +267,7 @@ class _ProfileState extends State<Profile> {
                       ButtonTheme.bar(
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
-                          children: <Widget>[   
-                          ],
+                          children: <Widget>[],
                         ),
                       ),
                     ],
@@ -249,9 +303,7 @@ class _ProfileState extends State<Profile> {
                     children: <Widget>[
                       Container(
                         child: ButtonBar(
-                          children: <Widget>[
-                            
-                          ],
+                          children: <Widget>[],
                         ),
                       ),
                       Container(
@@ -262,11 +314,10 @@ class _ProfileState extends State<Profile> {
                               children: <Widget>[
                                 Icon(Icons.email),
                                 Container(
-                                  margin: EdgeInsets.only(left: 10),
-                                  child: Text(dataJson == null
-                                      ? " "
-                                      : "Email" )
-                                )
+                                    margin: EdgeInsets.only(left: 10),
+                                    child: Text(dataJson == null
+                                        ? " "
+                                        : dataJson["email"]))
                               ],
                             ),
                             Row(
@@ -276,7 +327,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "TELP"),
+                                      : dataJson["seeker"]["data"]["phone"]),
                                 )
                               ],
                             ),
@@ -287,7 +338,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Jalan Bla bla bla " ),
+                                      : dataJson["seeker"]["data"]["address"]),
                                 )
                               ],
                             ),
@@ -298,7 +349,7 @@ class _ProfileState extends State<Profile> {
                                   margin: EdgeInsets.only(left: 10),
                                   child: Text(dataJson == null
                                       ? " "
-                                      : "Pos"),
+                                      : dataJson["seeker"]["data"]["zip_code"]),
                                 )
                               ],
                             ),
@@ -308,9 +359,7 @@ class _ProfileState extends State<Profile> {
                       ButtonTheme.bar(
                         // make buttons use the appropriate styles for cards
                         child: ButtonBar(
-                          children: <Widget>[
-                           
-                          ],
+                          children: <Widget>[],
                         ),
                       ),
                     ],
@@ -973,21 +1022,33 @@ class _ProfileState extends State<Profile> {
                                   Expanded(
                                     child: Container(),
                                   ),
-                                  RaisedButton(
-                                    color: Colors.orangeAccent,
-                                    onPressed: () {},
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.file_upload,
-                                          color: Colors.white,
-                                        ),
-                                        Text(
-                                          " Upload Ava",
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
-                                    ),
+                                  Container(
+                                    child: _isLoading
+                                        ? CircularProgressIndicator(
+                                            backgroundColor:
+                                                Colors.orangeAccent,
+                                            valueColor: AlwaysStoppedAnimation(
+                                                Colors.white),
+                                          )
+                                        : RaisedButton(
+                                            color: Colors.orangeAccent,
+                                            onPressed: () {
+                                              upload(_image);
+                                            },
+                                            child: Row(
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.file_upload,
+                                                  color: Colors.white,
+                                                ),
+                                                Text(
+                                                  " Upload Ava",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                )
+                                              ],
+                                            ),
+                                          ),
                                   )
                                 ],
                               ),
@@ -1002,8 +1063,11 @@ class _ProfileState extends State<Profile> {
                   decoration: BoxDecoration(
                       color: Colors.orange[200],
                       image: DecorationImage(
-                          image: NetworkImage(
-                              'https://icon-library.net/images/avatar-icon/avatar-icon-4.jpg'),
+                          image: _image == null
+                              ? NetworkImage(dataJson == null
+                                  ? " "
+                                  : dataJson["source"]["ava"])
+                              : FileImage(_image),
                           fit: BoxFit.cover),
                       borderRadius: BorderRadius.all(Radius.circular(75.0)),
                       boxShadow: [

@@ -9,6 +9,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siska/constant/Constant.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:siska/views/detail.dart';
+import 'package:siska/views/modal_filter.dart';
 
 class Job extends StatefulWidget {
   @override
@@ -30,14 +31,19 @@ class _JobState extends State<Job> {
     /**
      * Fetch Data from Uri
      */
-    http.Response item = await http.get(
-        Uri.encodeFull( "http://10.60.103.78:8000/api/clients/vacancies/get/"+_limit.toString()),
-        headers: {"Accept": "application/json"});
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull("https://kariernesia.com/api/clients/vacancies/get/" +
+              _limit.toString()),
+          headers: {"Accept": "application/json"});
 
-    this.setState(() {
-      dataJson = jsonDecode(item.body);
-    });
-    print("success");
+      this.setState(() {
+        dataJson = jsonDecode(item.body);
+      });
+      print("success");
+    } catch (e) {
+      print(e);
+    }
   }
 
   void check_connecti() async {
@@ -79,6 +85,22 @@ class _JobState extends State<Job> {
     showDialog(context: context, child: alert);
   }
 
+  void _openAddEntryDialog(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new ModalFilter(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+    // var data = jsonDecode(result);
+    // _showAlert(data["b"]);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -100,7 +122,7 @@ class _JobState extends State<Job> {
     await Future.delayed(Duration(milliseconds: 1000));
     // if failed,use loadFailed(),if no data return,use LoadNodata()
     setState(() {
-     _limit = _limit + 10; 
+      _limit = _limit + 10;
     });
     print(_limit);
     this.check_connecti();
@@ -123,7 +145,8 @@ class _JobState extends State<Job> {
       floatingActionButton: FloatingActionButton.extended(
         elevation: 3,
         onPressed: () {
-          _giffy(context);
+          // _giffy(context);
+          _openAddEntryDialog(context);
         },
         backgroundColor: Colors.orange[200],
         label: Icon(Icons.sort),
@@ -185,24 +208,22 @@ class _JobState extends State<Job> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           Container(
-                            width: _width / 3,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              color: Colors.orange[50],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: EdgeInsets.all(10),
-                            child: Hero(
-                              tag: 'ava-icon-${dataJson[i]["id"]}',
-                              child: Image.network(
-                              dataJson[i]["user"]["ava"],
-                              fit: BoxFit.cover,
-                              height: _height / 7,
-                              width: _width / 10,
-                            ),
-                            )
-                             
-                          ),
+                              width: _width / 3,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.rectangle,
+                                color: Colors.orange[50],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: EdgeInsets.all(10),
+                              child: Hero(
+                                tag: 'ava-icon-${dataJson[i]["id"]}',
+                                child: Image.network(
+                                  dataJson[i]["user"]["ava"],
+                                  fit: BoxFit.cover,
+                                  height: _height / 7,
+                                  width: _width / 10,
+                                ),
+                              )),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -324,4 +345,6 @@ class _JobState extends State<Job> {
               },
             ));
   }
+
+  Widget _modalForm(BuildContext context) {}
 }
