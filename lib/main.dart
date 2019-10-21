@@ -6,6 +6,7 @@ import 'package:siska/views/login.dart';
 import 'package:siska/views/job.dart';
 import 'package:siska/views/Profile.dart';
 import 'package:siska/views/detail.dart';
+import 'package:siska/views/main_tab.dart';
 
 
 void main() => runApp(new MyApp());
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: <String, WidgetBuilder>{
         SPLASH_SCREEN: (BuildContext context) => SplashScreen(),
-        PAY_TM: (BuildContext context) => Home(),
+        PAY_TM: (BuildContext context) => MainTab(),
         LOGIN_SCREEN: (BuildContext context) => LoginScreen(),
         JOB_SCREEN : (BuildContext context) => Job(),
         PROFILE : (BuildContext context) => Profile()
