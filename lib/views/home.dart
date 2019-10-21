@@ -73,7 +73,7 @@ class _HomeState extends State<Home> {
       this.setState(() {
         dataFavorite = jsonDecode(item.body);
       });
-      print("Success Favorite");
+      print(item.body);
     } catch (e) {
       print(e);
     }
@@ -349,6 +349,7 @@ class _HomeState extends State<Home> {
       height: _height / 4.25,
       //width: MediaQuery.of(context).size.width,
       child: ListView.builder(
+        physics: BouncingScrollPhysics(),
         padding: EdgeInsets.all(5),
         shrinkWrap: true,
         itemCount: datalatest == null ? 0 : datalatest.length,
@@ -365,6 +366,7 @@ class _HomeState extends State<Home> {
       height: _height / 4.25,
       //width: MediaQuery.of(context).size.width,
       child: ListView.builder(
+        physics: BouncingScrollPhysics(),
         padding: EdgeInsets.all(5),
         shrinkWrap: true,
         itemCount: dataFavorite == null ? 0 : dataFavorite.length,
