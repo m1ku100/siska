@@ -17,12 +17,16 @@ class Job extends StatefulWidget {
 }
 
 class _JobState extends State<Job> {
-  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
   List dataJson;
   double _width;
   double _height;
   int _limit = 10;
-
+  var _q = "";
+  var _loc = "";
+  var _salary = "";
+  var _jobfunc = "";
+  var _industry = "";
+  var _degree = "";
   var scaffoldKey = GlobalKey<ScaffoldState>();
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -31,15 +35,35 @@ class _JobState extends State<Job> {
     /**
      * Fetch Data from Uri
      */
+    var data = jsonEncode({
+      "q": _q,
+      "agen": "",
+      "loc": _loc,
+      "limit": _limit,
+      "salary_ids": _salary,
+      "jobfunc_ids": _jobfunc,
+      "industry_ids": _industry,
+      "degree_ids": _degree,
+      "major_ids": ""
+    });
+    // print(data);
     try {
-      http.Response item = await http.get(
-          Uri.encodeFull("https://kariernesia.com/api/clients/vacancies/get/" +
-              _limit.toString()),
-          headers: {"Accept": "application/json"});
+      http.Response item = await http.post("https://kariernesia.com/api/search",
+          body: data,
+          headers: {
+            "Accept": "application/json",
+            'Content-type': 'application/json'
+          });
+      // http.Response item = await http.get(
+      //     Uri.encodeFull("https://kariernesia.com/api/clients/vacancies/get/" +
+      //         _limit.toString()),
+      //     headers: {"Accept": "application/json"});
 
+      print(data);
       this.setState(() {
         dataJson = jsonDecode(item.body);
       });
+
       print("success");
     } catch (e) {
       print(e);
@@ -97,8 +121,20 @@ class _JobState extends State<Job> {
     //   content: Text("$result"),
     //   duration: Duration(seconds: 3),
     // ));
-    // var data = jsonDecode(result);
-    // _showAlert(data["b"]);
+    
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {
+      _q = data["q"];
+      _jobfunc = data["jobfunc_ids"];
+      _industry = data["industry_ids"];
+      _degree = data["degree_ids"];
+      _salary = data["salary_ids"];
+      _loc = data["loc"];
+      dataJson = null;
+    });
+
+    check_connecti();
   }
 
   @override
@@ -145,206 +181,201 @@ class _JobState extends State<Job> {
       floatingActionButton: FloatingActionButton.extended(
         elevation: 3,
         onPressed: () {
-          // _giffy(context);
           _openAddEntryDialog(context);
         },
         backgroundColor: Colors.orange[200],
         label: Icon(Icons.sort),
       ),
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: WaterDropHeader(),
-        footer: CustomFooter(
-          builder: (BuildContext context, LoadStatus mode) {
-            Widget body;
-            if (mode == LoadStatus.idle) {
-              body = Text("pull up load");
-            } else if (mode == LoadStatus.loading) {
-              body = CupertinoActivityIndicator();
-            } else if (mode == LoadStatus.failed) {
-              body = Text("Load Failed!Click retry!");
-            } else if (mode == LoadStatus.canLoading) {
-              body = Text("release to load more");
-            } else {
-              body = Text("No more Data");
-            }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
-            );
-          },
-        ),
-        controller: _refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: ListView.builder(
-          padding: EdgeInsets.all(5),
-          shrinkWrap: true,
-          itemCount: dataJson == null ? 0 : dataJson.length,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, i) {
-            return new GestureDetector(
-              onTap: () {
-                print(dataJson[i]["id"]);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Detail(
-                        id: dataJson[i]["id"],
-                      ),
-                    ));
-              },
-              child: Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0)),
-                color: Colors.white,
-                child: new Container(
-                    padding: EdgeInsets.only(
-                        left: 10, top: 10, right: 5, bottom: 10),
-                    child: SingleChildScrollView(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Container(
-                              width: _width / 3,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: Colors.orange[50],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.all(10),
-                              child: Hero(
-                                tag: 'ava-icon-${dataJson[i]["id"]}',
-                                child: Image.network(
-                                  dataJson[i]["user"]["ava"],
-                                  fit: BoxFit.cover,
-                                  height: _height / 7,
-                                  width: _width / 10,
-                                ),
-                              )),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                width: _width / 2,
-                                child: Text(
-                                  dataJson[i]["judul"],
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: _height / 45),
-                                ),
-                              ),
-                              Container(
-                                width: _width / 3,
-                                padding: EdgeInsets.only(top: 5),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Flexible(
-                                      child: Text(
-                                        "Rp." + dataJson[i]["salary"],
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      child: Container(
-                                        padding: EdgeInsets.all(2),
-                                        color: Colors.grey[200],
-                                        child: Text(
-                                          dataJson[i]["industry"],
-                                          softWrap: true,
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Container(
-                                width: _width / 2,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                          dataJson[i]["updated_at"],
-                                          style:
-                                              TextStyle(fontSize: _height / 65),
-                                        ),
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.location_on,
-                                              size: _height / 65,
-                                            ),
-                                            Text(
-                                              dataJson[i]["city"],
-                                              style: TextStyle(
-                                                  fontSize: _height / 65),
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    GestureDetector(
-                                      child: Icon(
-                                        Icons.favorite_border,
-                                        size: _height / 30,
-                                      ),
-                                      onTap: () {
-                                        print('Fav');
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )),
+      body: dataJson == null
+          ? Container(
+              padding: EdgeInsets.only(top: 300),
+              child: Center(
+                child: Column(
+                  children: <Widget>[
+                    CircularProgressIndicator(
+                      backgroundColor: Colors.white,
+                      valueColor:
+                          new AlwaysStoppedAnimation<Color>(Colors.orange),
+                    ),
+                    Text("Loading")
+                  ],
+                ),
+              ))
+          : SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: true,
+              header: WaterDropHeader(),
+              footer: CustomFooter(
+                builder: (BuildContext context, LoadStatus mode) {
+                  Widget body;
+                  if (mode == LoadStatus.idle) {
+                    body = Text("pull up load");
+                  } else if (mode == LoadStatus.loading) {
+                    body = CupertinoActivityIndicator();
+                  } else if (mode == LoadStatus.failed) {
+                    body = Text("Load Failed!Click retry!");
+                  } else if (mode == LoadStatus.canLoading) {
+                    body = Text("release to load more");
+                  } else {
+                    body = Text("No more Data");
+                  }
+                  return Container(
+                    height: 55.0,
+                    child: Center(child: body),
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: ListView.builder(
+                padding: EdgeInsets.all(5),
+                shrinkWrap: true,
+                itemCount: dataJson == null ? 0 : dataJson.length,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, i) {
+                  return new GestureDetector(
+                    onTap: () {
+                      print(dataJson[i]["id"]);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Detail(
+                              id: dataJson[i]["id"],
+                            ),
+                          ));
+                    },
+                    child: Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0)),
+                      color: Colors.white,
+                      child: new Container(
+                          padding: EdgeInsets.only(
+                              left: 10, top: 10, right: 5, bottom: 10),
+                          child: SingleChildScrollView(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: <Widget>[
+                                Container(
+                                    width: _width / 3,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      color: Colors.orange[50],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: Hero(
+                                      tag: 'ava-icon-${dataJson[i]["id"]}',
+                                      child: Image.network(
+                                        dataJson[i]["user"]["ava"],
+                                        fit: BoxFit.cover,
+                                        height: _height / 7,
+                                        width: _width / 10,
+                                      ),
+                                    )),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Container(
+                                      width: _width / 2,
+                                      child: Text(
+                                        dataJson[i]["judul"],
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 5,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _height / 45),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: _width / 3,
+                                      padding: EdgeInsets.only(top: 5),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Flexible(
+                                            child: Text(
+                                              "Rp." + dataJson[i]["salary"],
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: Container(
+                                              padding: EdgeInsets.all(2),
+                                              color: Colors.grey[200],
+                                              child: Text(
+                                                dataJson[i]["industry"],
+                                                softWrap: true,
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    Container(
+                                      width: _width / 2,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text(
+                                                dataJson[i]["updated_at"],
+                                                style: TextStyle(
+                                                    fontSize: _height / 65),
+                                              ),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Icon(
+                                                    Icons.location_on,
+                                                    size: _height / 65,
+                                                  ),
+                                                  Text(
+                                                    dataJson[i]["city"],
+                                                    style: TextStyle(
+                                                        fontSize: _height / 65),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          GestureDetector(
+                                            child: Icon(
+                                              Icons.favorite_border,
+                                              size: _height / 30,
+                                            ),
+                                            onTap: () {
+                                              print('Fav');
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
-
-  Widget _giffy(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (_) => AssetGiffyDialog(
-              image: Image.asset("assets/images/no_connection.gif"),
-              title: Text(
-                'Lolol',
-                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
-              ),
-              description: Text(
-                  "You're not connected to any network, please turn on your data or wi-fi"),
-              onOkButtonPressed: () {
-                Navigator.pop(context);
-              },
-            ));
-  }
-
-  Widget _modalForm(BuildContext context) {}
 }
