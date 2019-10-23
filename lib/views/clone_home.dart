@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:siska/views/detail.dart';
 import 'package:siska/constant/Constant.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -496,8 +496,15 @@ class _HomeCloneState extends State<HomeClone> {
   Widget _buildTrendingEntries(BuildContext context, int index, List listItem) {
     return GestureDetector(
       onTap: () {
-        // Navigator.of(context).pushNamed(DETAIL_UI);
+        
         print("Routing to trending list page");
+         Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Detail(
+                              id: listItem[index]["id"],
+                            ),
+                          ));
       },
       child: CustomCard(
         title: '${listItem[index]["judul"]}',
