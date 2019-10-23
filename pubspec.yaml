@@ -33,6 +33,7 @@ dependencies:
   font_awesome_flutter: ^8.0.1
   shared_preferences: ^0.5.3+4
   datetime_picker_formfield: ^0.4.3
+  auto_size_text: ^2.1.0
   dropdownfield: 1.0.0
 
 dev_dependencies:
@@ -78,6 +79,7 @@ flutter:
   - assets/images/no_connection.gif
   - assets/images/email_check.gif
   - assets/images/load.gif
+  - assets/images/empty_data.png
   - assets/category/asuransi.png
   - assets/category/bank.png
   - assets/category/construction.png
