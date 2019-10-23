@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:siska/views/Widgets/mainui_customcard.dart';
 import 'package:siska/constant/Constant.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class Detail extends StatefulWidget {
   final int id;
@@ -142,11 +142,14 @@ class _DetailState extends State<Detail> {
                   Container(
                       child: Column(
                     children: <Widget>[
-                      Text(dataJson == null ? " " : dataJson["judul"],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          )),
+                      SizedBox(
+                        width: 200.0,
+                        child: AutoSizeText(
+                          dataJson == null ? " " : dataJson["judul"],
+                          style: TextStyle(fontSize: 30.0),
+                          maxLines: 2,
+                        ),
+                      ),
                       ButtonBar(
                         children: <Widget>[
                           RaisedButton(
