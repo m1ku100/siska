@@ -21,7 +21,7 @@ class _ModalFilterState extends State<ModalFilter> {
   TextEditingController _controller = new TextEditingController();
   TextEditingController _startcontroller = new TextEditingController();
   TextEditingController _tillcontroller = new TextEditingController();
-
+  
   Map<String, dynamic> formData;
   List dataSalary;
   List dataJobfunc;
