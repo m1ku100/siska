@@ -13,6 +13,10 @@ import 'package:siska/constant/Constant.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:siska/views/bookmarks.dart';
+import 'package:siska/views/invitation.dart';
+import 'package:siska/views/setting.dart';
+
 class HomeClone extends StatefulWidget {
   @override
   _HomeCloneState createState() => _HomeCloneState();
@@ -80,6 +84,13 @@ class _HomeCloneState extends State<HomeClone> {
     }
   }
 
+  Future<void> pushAndReplace() async {
+    final current = ModalRoute.of(context);
+    Navigator.pushNamed(context, LOGIN_SCREEN);
+    await Future.delayed(Duration(milliseconds: 1));
+    Navigator.removeRoute(context, current);
+  }
+
   void check_connecti() async {
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -103,6 +114,38 @@ class _HomeCloneState extends State<HomeClone> {
       content: new Text(str),
       duration: new Duration(seconds: 2),
     ));
+  }
+
+  void _showDialogLogout() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Attention"),
+          content: new Text("Are you sure want to logout from your account ?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text(
+                "Logout",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onPressed: () {
+                _logout();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showAlert(String str) {
@@ -134,7 +177,9 @@ class _HomeCloneState extends State<HomeClone> {
   _logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.clear();
-    Navigator.of(context).pushReplacementNamed(LOGIN_SCREEN);
+    // Navigator.of(context).pushReplacementNamed(LOGIN_SCREEN);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/Login', (Route<dynamic> route) => false);
   }
 
   @override
@@ -441,13 +486,49 @@ class _HomeCloneState extends State<HomeClone> {
                   ),
                 )),
           ),
-          ListTile(
-            leading: Icon(Icons.payment),
-            title: Text("Orders & Payments"),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Bookmark(),
+                  ));
+            },
+            child: ListTile(
+              leading: Icon(Icons.bookmark),
+              title: Text("Bookmarks"),
+            ),
           ),
           GestureDetector(
             onTap: () {
-              _logout();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Invitation(),
+                  ));
+            },
+            child: ListTile(
+              leading: Icon(Icons.contact_mail),
+              title: Text("Job Invitation"),
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Setting(),
+                  ));
+            },
+            child: ListTile(
+              leading: Icon(Icons.settings),
+              title: Text("Setting Account"),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              _showDialogLogout();
+              // _logout();
             },
             child: ListTile(
               leading: Icon(Icons.power_settings_new),
@@ -496,15 +577,14 @@ class _HomeCloneState extends State<HomeClone> {
   Widget _buildTrendingEntries(BuildContext context, int index, List listItem) {
     return GestureDetector(
       onTap: () {
-        
         print("Routing to trending list page");
-         Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Detail(
-                              id: listItem[index]["id"],
-                            ),
-                          ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Detail(
+                id: listItem[index]["id"],
+              ),
+            ));
       },
       child: CustomCard(
         title: '${listItem[index]["judul"]}',
