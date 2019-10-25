@@ -72,8 +72,10 @@ class _ApplyState extends State<Apply> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         this.getApply();
-        setState(() {
-          isLoading = false;
+       new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            isLoading = false;
+          });
         });
       }
     } on SocketException catch (_) {
