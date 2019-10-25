@@ -13,7 +13,7 @@ class Setting extends StatefulWidget {
 
 class _SettingState extends State<Setting> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  var dataUser, dataChange;
+  var dataUser;
 
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
@@ -27,6 +27,7 @@ class _SettingState extends State<Setting> {
   bool _loginIndicator = true;
 
   String _token;
+  String _msg;
 
   Future<String> getApply() async {
     try {
@@ -43,19 +44,20 @@ class _SettingState extends State<Setting> {
     }
   }
 
-  void _showAlert(String str) {
-    if (str.isEmpty) return; //if text is empty
+  void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
 
     AssetGiffyDialog alert = new AssetGiffyDialog(
-      image: Image.asset("assets/images/no_connection.gif"),
+      image: Image.asset(assets),
       title: Text(
-        str,
+        titl,
         style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
       ),
-      description: Text("Turn On your data or Wi-Fi"),
+      description: Text(desc),
       onOkButtonPressed: () {
         Navigator.pop(context);
       },
+      onlyOkButton: true,
       buttonOkColor: Colors.orange[200],
     );
 
@@ -84,14 +86,40 @@ class _SettingState extends State<Setting> {
         });
       }
     } on SocketException catch (_) {
-      _showAlert('Your not connected');
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
     }
   }
 
   Future<List> _changePass() async {
     var data = jsonEncode({
       "password": _passwordController.text,
+      "newpassword": _newpasswordController.text,
+      "repassword": _repasswordController.text
     });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/update/password?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+       _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+         _passwordController.text = "";
+         _newpasswordController.text = "";
+         _repasswordController.text = ""; 
+        });
+      }
+    }
   }
 
   @override
@@ -223,7 +251,9 @@ class _SettingState extends State<Setting> {
                     ),
                     elevation: 3,
                     color: Colors.orangeAccent,
-                    onPressed: () {},
+                    onPressed: () {
+                      _changePass();
+                    },
                     child: Text(
                       "Change Password",
                       style: TextStyle(color: Colors.white),
