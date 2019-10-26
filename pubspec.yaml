@@ -79,6 +79,7 @@ flutter:
   - assets/images/no_connection.gif
   - assets/images/email_check.gif
   - assets/images/load.gif
+  - assets/images/nutmeg.gif
   - assets/images/empty_data.png
   - assets/category/asuransi.png
   - assets/category/bank.png
