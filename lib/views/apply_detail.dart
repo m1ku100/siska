@@ -7,6 +7,7 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:siska/constant/Constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplyDetail extends StatefulWidget {
   final String id;
@@ -23,6 +24,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
   double _height;
   double _width;
   String id;
+  String _token, _msg;
   _ApplyDetailState(this.id);
 
   List dataFavorite;
@@ -59,6 +61,40 @@ class _ApplyDetailState extends State<ApplyDetail> {
       print(e);
     }
   }
+
+  Future<List> _abort() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/abort?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+       
+      }
+    }
+  }
+
+  _loadToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (preferences.getString("token") ?? "");
+    });
+  }
+
+
 
   void check_connecti() async {
     try {
@@ -100,17 +136,20 @@ class _ApplyDetailState extends State<ApplyDetail> {
     showDialog(context: context, child: alert);
   }
 
-  void _showAlert(int id) {
+ void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
+
     AssetGiffyDialog alert = new AssetGiffyDialog(
-      image: Image.asset("assets/images/no_connection.gif"),
+      image: Image.asset(assets),
       title: Text(
-        "Warning",
+        titl,
         style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
       ),
-      description: Text("Are you sure want to abort this applicant ?"),
+      description: Text(desc),
       onOkButtonPressed: () {
         Navigator.pop(context);
       },
+      onlyOkButton: true,
       buttonOkColor: Colors.orange[200],
     );
 
@@ -120,7 +159,9 @@ class _ApplyDetailState extends State<ApplyDetail> {
   @override
   void initState() {
     // TODO: implement initState
+    this._loadToken();
     this.check_connecti();
+    
   }
 
   @override
@@ -193,8 +234,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
                               ],
                             ),
                             onPressed: () {
-                              _showAlert(
-                                  dataJson == null ? " " : dataJson["id"]);
+                             _abort();
                             },
                           ),
                           RaisedButton(
