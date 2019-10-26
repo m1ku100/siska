@@ -7,6 +7,8 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:siska/constant/Constant.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Detail extends StatefulWidget {
   final int id;
@@ -24,6 +26,9 @@ class _DetailState extends State<Detail> {
   double _width;
   int id;
   _DetailState(this.id);
+  String _token, _msg;
+  bool isBookmarked = false;
+  bool isApplied = false;
 
   List dataFavorite;
 
@@ -60,6 +65,67 @@ class _DetailState extends State<Detail> {
     }
   }
 
+  Future<List> _bookmark() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/bookmarking?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+         isBookmarked = true; 
+        });
+      }
+    }
+  }
+
+   Future<List> _apply() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/applying?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+         isApplied = true; 
+        });
+      }
+    }
+  }
+
+  _loadToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (preferences.getString("token") ?? "");
+    });
+  }
+
   void check_connecti() async {
     try {
       final result = await InternetAddress.lookup('google.com');
@@ -68,7 +134,8 @@ class _DetailState extends State<Detail> {
         await this.getFavorite();
       }
     } on SocketException catch (_) {
-      _showAlert("You'are not connected");
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
     }
   }
 
@@ -81,19 +148,20 @@ class _DetailState extends State<Detail> {
     ));
   }
 
-  void _showAlert(String str) {
-    if (str.isEmpty) return; //if text is empty
+  void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
 
     AssetGiffyDialog alert = new AssetGiffyDialog(
-      image: Image.asset("assets/images/no_connection.gif"),
+      image: Image.asset(assets),
       title: Text(
-        str,
+        titl,
         style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
       ),
-      description: Text("Turn On your data or Wi-Fi"),
+      description: Text(desc),
       onOkButtonPressed: () {
         Navigator.pop(context);
       },
+      onlyOkButton: true,
       buttonOkColor: Colors.orange[200],
     );
 
@@ -103,6 +171,7 @@ class _DetailState extends State<Detail> {
   @override
   void initState() {
     // TODO: implement initState
+    this._loadToken();
     this.check_connecti();
   }
 
@@ -152,6 +221,31 @@ class _DetailState extends State<Detail> {
                       ),
                       ButtonBar(
                         children: <Widget>[
+                          isApplied ? 
+                          RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            color: Colors.white,
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  'Applied  ',
+                                  style: TextStyle(color: Colors.orangeAccent),
+                                ),
+                                // Expanded(
+                                //   child: Container(
+
+                                //   ),
+                                // ),
+                                Icon(
+                                  Icons.send,
+                                  color: Colors.orangeAccent,
+                                ),
+                              ],
+                            ),
+                            onPressed: () {_apply();},
+                          )
+                          :
                           RaisedButton(
                             shape: RoundedRectangleBorder(
                                 borderRadius: new BorderRadius.circular(30.0)),
@@ -173,8 +267,29 @@ class _DetailState extends State<Detail> {
                                 ),
                               ],
                             ),
-                            onPressed: () {/* ... */},
+                            onPressed: () {_apply();},
                           ),
+                          isBookmarked ?
+                          RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            color: Colors.white,
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.bookmark,
+                                  color: Colors.orangeAccent,
+                                ),
+                                Text(
+                                  ' Bookmarked',
+                                  style: TextStyle(color: Colors.orangeAccent),
+                                )
+                              ],
+                            ),
+                            onPressed: () {
+                              _bookmark();
+                            },
+                          ) :
                           RaisedButton(
                             shape: RoundedRectangleBorder(
                                 borderRadius: new BorderRadius.circular(30.0)),
@@ -191,7 +306,9 @@ class _DetailState extends State<Detail> {
                                 )
                               ],
                             ),
-                            onPressed: () {/* ... */},
+                            onPressed: () {
+                              _bookmark();
+                            },
                           ),
                         ],
                       )
