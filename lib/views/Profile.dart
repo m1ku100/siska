@@ -14,6 +14,15 @@ import 'dart:convert';
 import 'package:siska/views/Widgets/custom_shape.dart';
 import 'package:siska/constant/Constant.dart';
 
+import 'package:siska/views/modal/contact.dart';
+import 'package:siska/views/modal/education.dart';
+import 'package:siska/views/modal/language.dart';
+import 'package:siska/views/modal/org.dart';
+import 'package:siska/views/modal/personal.dart';
+import 'package:siska/views/modal/skill.dart';
+import 'package:siska/views/modal/training.dart';
+import 'package:siska/views/modal/work.dart';
+
 class Profile extends StatefulWidget {
   @override
   _ProfileState createState() => _ProfileState();
@@ -162,8 +171,10 @@ class _ProfileState extends State<Profile> {
         await this.getEdu();
         await this.getExp();
         await this.getOrg();
-        setState(() {
-          _isLoading = false;
+       new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+          });
         });
       }
     } on SocketException catch (_) {
@@ -188,6 +199,171 @@ class _ProfileState extends State<Profile> {
     );
 
     showDialog(context: context, child: alert);
+  }
+
+  void _openPersonal(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Personal(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+
+    if (data["load"]) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      check_connecti();
+    }
+  }
+
+  void _openContact(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Contact(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openWork(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Work(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openEdu(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Education(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openTraining(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Training(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openOrg(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Org(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openSkill(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Skill(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openLanguage(BuildContext context) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (BuildContext context) => new Language(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
   }
 
   @override
@@ -232,7 +408,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openPersonal(context);
                               },
                               child: Text(
                                 'Edit Data',
@@ -354,7 +530,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openContact(context);
                               },
                               child: Text(
                                 'Edit Data',
@@ -450,7 +626,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openWork(context);
                               },
                               child: Text(
                                 'Add Data',
@@ -465,99 +641,100 @@ class _ProfileState extends State<Profile> {
                     Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
                         child: SingleChildScrollView(
-                          child:_exp.length == 0
-                            ? Card(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Center(
-                                      child: Image.asset(
-                                        "assets/images/empty_data.png",
-                                        height: 150.0,
-                                        width: 300.0,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text("Your data is empty",
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    ButtonTheme.bar(
-                                      // make buttons use the appropriate styles for cards
-                                      child: ButtonBar(
-                                        children: <Widget>[],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            :  ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.all(5),
-                            shrinkWrap: true,
-                            itemCount: _exp == null ? 0 : _exp.length,
-                            scrollDirection: Axis.vertical,
-                            itemBuilder: (context, i) {
-                              return new GestureDetector(
-                                onTap: () {},
-                                child: Card(
+                          child: _exp.length == 0
+                              ? Card(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
-                                      ListTile(
-                                        leading: Image(
-                                          image:
-                                              AssetImage("assets/menu/exp.png"),
+                                      Center(
+                                        child: Image.asset(
+                                          "assets/images/empty_data.png",
+                                          height: 150.0,
+                                          width: 300.0,
                                         ),
-                                        title: Text(_exp[i]["company"]),
-                                        subtitle: Text(
-                                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                      ),
+                                      Center(
+                                        child: Text("Your data is empty",
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       ButtonTheme.bar(
                                         // make buttons use the appropriate styles for cards
                                         child: ButtonBar(
-                                          children: <Widget>[
-                                            FlatButton(
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Icon(
-                                                    Icons.delete,
-                                                    color: Colors.redAccent,
-                                                  ),
-                                                  Text(
-                                                    'DELETE',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.redAccent),
-                                                  )
-                                                ],
-                                              ),
-                                              onPressed: () {/* ... */},
-                                            ),
-                                            FlatButton(
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Icon(Icons.edit),
-                                                  Text(
-                                                    'EDIT',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.blueAccent),
-                                                  )
-                                                ],
-                                              ),
-                                              onPressed: () {/* ... */},
-                                            ),
-                                          ],
+                                          children: <Widget>[],
                                         ),
                                       ),
                                     ],
                                   ),
+                                )
+                              : ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.all(5),
+                                  shrinkWrap: true,
+                                  itemCount: _exp == null ? 0 : _exp.length,
+                                  scrollDirection: Axis.vertical,
+                                  itemBuilder: (context, i) {
+                                    return new GestureDetector(
+                                      onTap: () {},
+                                      child: Card(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ListTile(
+                                              leading: Image(
+                                                image: AssetImage(
+                                                    "assets/menu/exp.png"),
+                                              ),
+                                              title: Text(_exp[i]["company"]),
+                                              subtitle: Text(
+                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                            ),
+                                            ButtonTheme.bar(
+                                              // make buttons use the appropriate styles for cards
+                                              child: ButtonBar(
+                                                children: <Widget>[
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Colors.redAccent,
+                                                        ),
+                                                        Text(
+                                                          'DELETE',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {/* ... */},
+                                                  ),
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(Icons.edit),
+                                                        Text(
+                                                          'EDIT',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .blueAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {/* ... */},
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
                         )),
                     Container(
                       margin: EdgeInsets.only(left: 20, right: 30, top: 10),
@@ -568,7 +745,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openEdu(context);
                               },
                               child: Text(
                                 'Add Data',
@@ -583,101 +760,103 @@ class _ProfileState extends State<Profile> {
                     Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
                         child: SingleChildScrollView(
-                          child:_edu.length == 0
-                            ? Card(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Center(
-                                      child: Image.asset(
-                                        "assets/images/empty_data.png",
-                                        height: 150.0,
-                                        width: 300.0,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text("Your data is empty",
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    ButtonTheme.bar(
-                                      // make buttons use the appropriate styles for cards
-                                      child: ButtonBar(
-                                        children: <Widget>[],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.all(5),
-                            shrinkWrap: true,
-                            itemCount: _edu == null ? 0 : _edu.length,
-                            scrollDirection: Axis.vertical,
-                            itemBuilder: (context, i) {
-                              return new GestureDetector(
-                                onTap: () {},
-                                child: Card(
+                          child: _edu.length == 0
+                              ? Card(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
-                                      ListTile(
-                                        leading: Image(
-                                          image:
-                                              AssetImage("assets/menu/edu.png"),
+                                      Center(
+                                        child: Image.asset(
+                                          "assets/images/empty_data.png",
+                                          height: 150.0,
+                                          width: 300.0,
                                         ),
-                                        title: Text(_edu[i]["school_name"]),
-                                        subtitle: Text(
-                                            'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                      ),
+                                      Center(
+                                        child: Text("Your data is empty",
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       ButtonTheme.bar(
                                         // make buttons use the appropriate styles for cards
                                         child: ButtonBar(
-                                          children: <Widget>[
-                                            FlatButton(
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Icon(
-                                                    Icons.delete,
-                                                    color: Colors.redAccent,
-                                                  ),
-                                                  Text(
-                                                    'DELETE',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.redAccent),
-                                                  )
-                                                ],
-                                              ),
-                                              onPressed: () {
-                                                print("Delete Edu");
-                                              },
-                                            ),
-                                            FlatButton(
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Icon(Icons.edit),
-                                                  Text(
-                                                    'EDIT',
-                                                    style: TextStyle(
-                                                        color:
-                                                            Colors.blueAccent),
-                                                  )
-                                                ],
-                                              ),
-                                              onPressed: () {/* ... */},
-                                            ),
-                                          ],
+                                          children: <Widget>[],
                                         ),
                                       ),
                                     ],
                                   ),
+                                )
+                              : ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.all(5),
+                                  shrinkWrap: true,
+                                  itemCount: _edu == null ? 0 : _edu.length,
+                                  scrollDirection: Axis.vertical,
+                                  itemBuilder: (context, i) {
+                                    return new GestureDetector(
+                                      onTap: () {},
+                                      child: Card(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ListTile(
+                                              leading: Image(
+                                                image: AssetImage(
+                                                    "assets/menu/edu.png"),
+                                              ),
+                                              title:
+                                                  Text(_edu[i]["school_name"]),
+                                              subtitle: Text(
+                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                            ),
+                                            ButtonTheme.bar(
+                                              // make buttons use the appropriate styles for cards
+                                              child: ButtonBar(
+                                                children: <Widget>[
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Colors.redAccent,
+                                                        ),
+                                                        Text(
+                                                          'DELETE',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {
+                                                      print("Delete Edu");
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(Icons.edit),
+                                                        Text(
+                                                          'EDIT',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .blueAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {/* ... */},
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
                         )),
                     Container(
                       margin: EdgeInsets.only(left: 20, right: 30, top: 10),
@@ -689,7 +868,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openTraining(context);
                               },
                               child: Text(
                                 'Add Data',
@@ -801,7 +980,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openOrg(context);
                               },
                               child: Text(
                                 'Add Data',
@@ -921,7 +1100,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openSkill(context);
                               },
                               child: Text(
                                 'Add Data',
@@ -997,7 +1176,7 @@ class _ProfileState extends State<Profile> {
                           GestureDetector(
                               onTap: () {
                                 // Navigator.of(context).pushNamed(TRENDING_UI);
-                                print('Showing all');
+                                _openLanguage(context);
                               },
                               child: Text(
                                 'Add Data',
