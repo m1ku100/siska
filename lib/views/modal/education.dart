@@ -236,7 +236,7 @@ class _EducationState extends State<Education> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Filter',
+            'Add Data Education',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [

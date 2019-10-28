@@ -236,7 +236,7 @@ class _TrainingState extends State<Training> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Filter',
+            'Add Data Training',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [

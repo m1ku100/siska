@@ -236,7 +236,7 @@ class _OrgState extends State<Org> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Filter',
+            'Add Data Organization',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [

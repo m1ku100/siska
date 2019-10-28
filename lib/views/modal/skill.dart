@@ -236,7 +236,7 @@ class _SkillState extends State<Skill> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Filter',
+            'Add Data Skill',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [
