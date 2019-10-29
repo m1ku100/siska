@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'dart:convert';
@@ -6,6 +7,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:dropdownfield/dropdownfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Work extends StatefulWidget {
   @override
@@ -17,43 +19,93 @@ class _WorkState extends State<Work> {
   final formKey = GlobalKey<FormState>();
   final myformat = DateFormat("yyyy-MM-dd");
   DateTime selectedDate = DateTime.now();
+  DateTime selectedDatetill = DateTime.now();
 
-  TextEditingController _controller = new TextEditingController();
+  TextEditingController _jobController = new TextEditingController();
   TextEditingController _startcontroller = new TextEditingController();
   TextEditingController _tillcontroller = new TextEditingController();
-  
+  TextEditingController _reportController = new TextEditingController();
+  TextEditingController _companyController = new TextEditingController();
+  TextEditingController _jobDescController = new TextEditingController();
+
   Map<String, dynamic> formData;
+  List dataNations;
+  List dataJoblevel;
+  List dataFungsi;
+  List dataindustri;
   List dataSalary;
-  List dataJobfunc;
-  List dataIndus;
-  List dataDegree;
+  List dataJobtype;
   List dataCities;
-  List dataSalaries;
 
   String _text = "";
-  String _mySelection;
-  String _indus;
-  String _jobfunc;
-  String _degree;
+  String _joblevel;
+  String _jobtype;
+  String _fungsikerja;
+  String _token;
+  String _industri;
+  String _city;
   String _salary;
   DateTime start;
-  var data;
+  bool isLoading = true;
 
-  Future<String> getSalary() async {
+  var data;
+  var dataUser;
+
+  Future<String> getUser() async {
     /**
      * Fetch Data from Uri
      */
     try {
       http.Response item = await http.get(
-          Uri.encodeFull("https://kariernesia.com/api/clients/vacancies/get/"),
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/me?token=" + _token),
           headers: {"Accept": "application/json"});
 
       this.setState(() {
-        dataSalary = jsonDecode(item.body);
+        dataUser = jsonDecode(item.body);
       });
-      print("success");
+      print("get user success");
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<List> _save() async {
+    setState(() {
+      isLoading = true;
+    });
+    var data = jsonEncode({
+      "job_title": _jobController.text == null ? "" : _jobController.text,
+      "joblevel_id": _joblevel,
+      "company": _companyController.text == null ? "" : _companyController.text,
+      "fungsikerja_id": _fungsikerja,
+      "industri_id": _industri,
+      "city_id": _city,
+      "salary_id": _salary,
+      "start_date": _startcontroller.text == null ? "" : _startcontroller.text,
+      "end_date": _tillcontroller.text == null ? "" : _tillcontroller.text,
+      "jobtype_id": _jobtype,
+      "report_to": _reportController.text == null ? "" : _reportController.text,
+      "job_desc": _jobDescController.text == null ? "" : _jobDescController.text
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/profile/exp/save?token=" + _token,
+        body: data);
+
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        Navigator.pop(context, jsonEncode({"load": true}));
+      }
     }
   }
 
@@ -67,7 +119,7 @@ class _WorkState extends State<Work> {
           headers: {"Accept": "application/json"});
 
       this.setState(() {
-        dataJobfunc = jsonDecode(item.body);
+        dataFungsi = jsonDecode(item.body);
       });
       print("success");
     } catch (e) {
@@ -85,25 +137,7 @@ class _WorkState extends State<Work> {
           headers: {"Accept": "application/json"});
 
       this.setState(() {
-        dataIndus = jsonDecode(item.body);
-      });
-      print("success");
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<String> getDegree() async {
-    /**
-     * Fetch Data from Uri
-     */
-    try {
-      http.Response item = await http.get(
-          Uri.encodeFull("https://kariernesia.com/api/clients/degree"),
-          headers: {"Accept": "application/json"});
-
-      this.setState(() {
-        dataDegree = jsonDecode(item.body);
+        dataindustri = jsonDecode(item.body);
       });
       print("success");
     } catch (e) {
@@ -139,12 +173,98 @@ class _WorkState extends State<Work> {
           headers: {"Accept": "application/json"});
 
       this.setState(() {
-        dataSalaries = jsonDecode(item.body);
+        dataSalary = jsonDecode(item.body);
       });
       print("success");
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<String> getJoblevel() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull("https://kariernesia.com/api/clients/joblevel"),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataJoblevel = jsonDecode(item.body);
+      });
+      print("success");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> getJobtype() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull("https://kariernesia.com/api/clients/jobtype"),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataJobtype = jsonDecode(item.body);
+      });
+      print("success");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void check_connecti() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        this.getUser();
+        await this.getJobfunc();
+        await this.getIndus();
+        await this.getCities();
+        await this.getSalaries();
+        await this.getJoblevel();
+        await this.getJobtype();
+        new Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            isLoading = false;
+          });
+        });
+      }
+    } on SocketException catch (_) {
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
+    }
+  }
+
+  _loadToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _token = (preferences.getString("token") ?? "");
+    });
+  }
+
+  void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
+
+    AssetGiffyDialog alert = new AssetGiffyDialog(
+      image: Image.asset(assets),
+      title: Text(
+        titl,
+        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+      ),
+      description: Text(desc),
+      onOkButtonPressed: () {
+        Navigator.pop(context);
+      },
+      onlyOkButton: true,
+      buttonOkColor: Colors.orange[200],
+    );
+
+    showDialog(context: context, child: alert);
   }
 
   Future<Null> _selectDate(BuildContext context) async {
@@ -156,67 +276,29 @@ class _WorkState extends State<Work> {
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
+        _startcontroller.text = myformat.format(selectedDate);
       });
   }
 
-  void check_connecti() async {
-    try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        this.getJobfunc();
-        await this.getIndus();
-        await this.getDegree();
-        await this.getCities();
-        await this.getSalaries();
-      }
-    } on SocketException catch (_) {
-      _showAlert("You'are not connected");
-    }
-  }
-
-  void _showAlert(String str) {
-    if (str.isEmpty) return; //if text is empty
-
-    AssetGiffyDialog alert = new AssetGiffyDialog(
-      image: Image.asset("assets/images/no_connection.gif"),
-      title: Text(
-        str,
-        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
-      ),
-      description: Text("Turn On your data or Wi-Fi"),
-      onOkButtonPressed: () {
-        Navigator.pop(context);
-      },
-      buttonOkColor: Colors.orange[200],
-    );
-
-    showDialog(context: context, child: alert);
+  Future<Null> _selectDateTill(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDatetill,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDatetill)
+      setState(() {
+        selectedDatetill = picked;
+        _tillcontroller.text = myformat.format(selectedDatetill);
+      });
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    this._loadToken();
     this.check_connecti();
-  }
-
-  void _saveText() {
-    var data = jsonEncode({
-      "q": _controller.text ==null? "": _controller.text,
-      "agen": "",
-      "loc": _mySelection == null ? "" : _mySelection,
-      "salary_ids": _salary == null ? "" : _salary,
-      "jobfunc_ids": _jobfunc == null ? "":_jobfunc,
-      "industry_ids": _indus == null ? "" : _indus,
-      "degree_ids": _degree == null ? "" : _degree,
-      "major_ids": ""
-    });
-
-    // setState(() {
-    //   data = jsonEncode({"a": _controller.text, "b": "ini B"});
-    // });
-    print("success");
-    Navigator.pop(context, data);
   }
 
   @override
@@ -229,21 +311,19 @@ class _WorkState extends State<Work> {
           leading: new IconButton(
             icon: new Icon(Icons.close),
             color: Colors.orangeAccent,
-            onPressed: () => Navigator.pop(
-              context,
-              _controller.text,
-            ),
+            onPressed: () =>
+                Navigator.pop(context, jsonEncode({"load": false})),
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Add Data Work Experience',
+            'Add Work Experience',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [
             new FlatButton(
                 onPressed: () {
                   //TODO: Handle save
-                  _saveText();
+                  _save();
                 },
                 child: new Text('SAVE',
                     style: Theme.of(context)
@@ -252,337 +332,426 @@ class _WorkState extends State<Work> {
                         .copyWith(color: Colors.orangeAccent))),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
-                    child: TextField(
-                      controller: _controller,
-                      // obscureText: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Job Title',
-                      ),
-                    ),
-                  ),
-                ),
-                // Container(
-                //   child: Center(
-                //     child: Text(_controller.text == ""
-                //         ? "Recruitment Date"
-                //         : _controller.text.toUpperCase() +
-                //             '\'s Recruitment Date'),
-                //   ),
-                // ),
-                // Container(
-                //   padding:
-                //       EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //     children: <Widget>[
-                //       Expanded(
-                //         child: InkWell(
-                //           onTap: () {
-                //             _selectDate(
-                //                 context); // Call Function that has showDatePicker()
-                //           },
-                //           child: IgnorePointer(
-                //             child: new TextFormField(
-                //               controller: _startcontroller,
-                //               decoration: new InputDecoration(
-                //                 hintText: selectedDate.toString(),
-                //                 border: OutlineInputBorder(),
-                //                 labelText: "${myformat.format(selectedDate)}",
-                //               ),
-                //               onSaved: (String val) {},
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //       Container(
-                //         width: 10.0,
-                //       ),
-                //       Expanded(
-                //         child: InkWell(
-                //           onTap: () {
-                //             _selectDate(
-                //                 context); // Call Function that has showDatePicker()
-                //           },
-                //           child: IgnorePointer(
-                //             child: new TextFormField(
-                //               controller: _tillcontroller,
-                //               decoration: new InputDecoration(
-                //                 hintText: selectedDate.toString(),
-                //                 border: OutlineInputBorder(),
-                //                 labelText: "${myformat.format(selectedDate)}",
-                //               ),
-                //               onSaved: (String val) {},
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // Container(
-                //   child: Text('Basic date & time field (${start})'),
-                // ),
-                // Container(
-                //   child: Center(
-                //     child: Text(selectedDate.toString()),
-                //   ),
-                // ),
-                Container(
-                  width: 345.0,
-                  margin:
-                      EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    ),
-                  ),
-                  child: dataSalaries == null
-                      ? Column(
-                          children: <Widget>[
-                            new CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.orange),
-                            ),
-                            new Text("Loading"),
-                          ],
-                        )
-                      : new DropdownButton(
-                          hint: Text("Select Salary"),
-                          elevation: 3,
-                          items: dataSalaries?.map((item) {
-                                return new DropdownMenuItem(
-                                  value: item['id'].toString(),
-                                  child: new Text(
-                                    item['name'],
-                                    style: new TextStyle(fontSize: 16.0),
-                                  ),
-                                );
-                              })?.toList() ??
-                              [],
-                          onChanged: (newVal) {
-                            setState(() {
-                              _salary = newVal;
-                            });
-                          },
-                          value: _salary,
-                        ),
-                ),
-                Container(
-                  margin:
-                      EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    ),
-                  ),
-                  child: dataCities == null
-                      ? Column(
-                          children: <Widget>[
-                            new CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.orange),
-                            ),
-                            new Text("Loading"),
-                          ],
-                        )
-                      : new DropdownButton(
-                          hint: Text("Select Location"),
-                          elevation: 3,
-                          items: dataCities?.map((item) {
-                                return new DropdownMenuItem(
-                                  value: item['id'].toString(),
-                                  child: new Text(
-                                    item['name'],
-                                    style: new TextStyle(fontSize: 16.0),
-                                  ),
-                                );
-                              })?.toList() ??
-                              [],
-                          onChanged: (newVal) {
-                            setState(() {
-                              _mySelection = newVal;
-                            });
-                          },
-                          value: _mySelection,
-                        ),
-                ),
-                Container(
-                  width: 345.0,
-                  margin:
-                      EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    ),
-                  ),
-                  child: dataJobfunc == null
-                      ? Column(
-                          children: <Widget>[
-                            new CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.orange),
-                            ),
-                            new Text("Loading"),
-                          ],
-                        )
-                      : new DropdownButton(
-                          hint: Text("Select Job Fuction"),
-                          elevation: 3,
-                          items: dataJobfunc?.map((item) {
-                                return new DropdownMenuItem(
-                                  value: item['id'].toString(),
-                                  child: new Text(
-                                    item['nama'],
-                                    style: new TextStyle(fontSize: 16.0),
-                                  ),
-                                );
-                              })?.toList() ??
-                              [],
-                          onChanged: (newVal) {
-                            setState(() {
-                              _jobfunc = newVal;
-                            });
-                          },
-                          value: _jobfunc,
-                        ),
-                ),
-                Container(
-                  width: 345.0,
-                  margin:
-                      EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    ),
-                  ),
-                  child: dataIndus == null
-                      ? Column(
-                          children: <Widget>[
-                            new CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.orange),
-                            ),
-                            new Text("Loading"),
-                          ],
-                        )
-                      : new DropdownButton(
-                          hint: Text("Select Industry"),
-                          elevation: 3,
-                          items: dataIndus?.map((item) {
-                                return new DropdownMenuItem(
-                                  value: item['id'].toString(),
-                                  child: new Text(
-                                    item['nama'],
-                                    style: new TextStyle(fontSize: 16.0),
-                                  ),
-                                );
-                              })?.toList() ??
-                              [],
-                          onChanged: (newVal) {
-                            setState(() {
-                              _indus = newVal;
-                            });
-                          },
-                          value: _indus,
-                        ),
-                ),
-                Container(
-                  width: 345.0,
-                  margin:
-                      EdgeInsets.only(bottom: 20.0, left: 25.0, right: 25.0),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                          style: BorderStyle.solid),
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    ),
-                  ),
-                  child: dataDegree == null
-                      ? Column(
-                          children: <Widget>[
-                            new CircularProgressIndicator(
-                              backgroundColor: Colors.white,
-                              valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Colors.orange),
-                            ),
-                            new Text("Loading"),
-                          ],
-                        )
-                      : new DropdownButton(
-                          hint: Text("Select Industry"),
-                          elevation: 3,
-                          items: dataDegree?.map((item) {
-                                return new DropdownMenuItem(
-                                  value: item['id'].toString(),
-                                  child: new Text(
-                                    item['name'],
-                                    style: new TextStyle(fontSize: 16.0),
-                                  ),
-                                );
-                              })?.toList() ??
-                              [],
-                          onChanged: (newVal) {
-                            setState(() {
-                              _degree = newVal;
-                            });
-                          },
-                          value: _degree,
-                        ),
-                ),
-                Container(
+        body: isLoading
+            ? Container(
+                padding: EdgeInsets.only(top: 300),
+                child: Center(
                   child: Column(
                     children: <Widget>[
-                      Text(_controller.text),
-                      Text(_mySelection == null
-                          ? "Kosong"
-                          : "cities " + _mySelection),
-                      Text(_indus == null
-                          ? " industri kosong"
-                          : "industri " + _indus),
-                      Text(_jobfunc == null
-                          ? " industri kosong"
-                          : "job  " + _jobfunc),
-                      Text(_degree == null
-                          ? " industri kosong"
-                          : "degree  " + _degree),
+                      CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.orange),
+                      ),
+                      Text("Loading")
                     ],
                   ),
-                )
-              ],
-            ),
-          ),
-        ),
+                ))
+            : SingleChildScrollView(
+                child: Container(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              top: 20.0, bottom: 20.0, left: 25.0, right: 25.0),
+                          child: TextField(
+                            controller: _jobController,
+                            // obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Job Title',
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 20.0, left: 25.0, right: 25.0),
+                          child: TextField(
+                            controller: _companyController,
+                            // obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Company Name',
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 20.0, left: 25.0, right: 25.0),
+                          child: TextField(
+                            controller: _reportController,
+                            // obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Report To',
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  _selectDate(
+                                      context); // Call Function that has showDatePicker()
+                                },
+                                child: IgnorePointer(
+                                  child: new TextFormField(
+                                    controller: _startcontroller,
+                                    decoration: new InputDecoration(
+                                      hintText: selectedDate.toString(),
+                                      border: OutlineInputBorder(),
+                                      labelText: "Work From",
+                                    ),
+                                    onSaved: (String val) {},
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  _selectDateTill(
+                                      context); // Call Function that has showDatePicker()
+                                },
+                                child: IgnorePointer(
+                                  child: new TextFormField(
+                                    controller: _tillcontroller,
+                                    decoration: new InputDecoration(
+                                      hintText: _selectDateTill.toString(),
+                                      border: OutlineInputBorder(),
+                                      labelText: "Work Till",
+                                    ),
+                                    onSaved: (String val) {},
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataSalary == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select Salary"),
+                                elevation: 3,
+                                items: dataSalary?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['name'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _salary = newVal;
+                                  });
+                                },
+                                value: _salary,
+                              ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataFungsi == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select Job Function"),
+                                elevation: 3,
+                                items: dataFungsi?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['nama'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _fungsikerja = newVal;
+                                  });
+                                },
+                                value: _fungsikerja,
+                              ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataJoblevel == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select Job Level"),
+                                elevation: 3,
+                                items: dataJoblevel?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['name'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _joblevel = newVal;
+                                  });
+                                },
+                                value: _joblevel,
+                              ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataindustri == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select Industri"),
+                                elevation: 3,
+                                items: dataindustri?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['nama'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _industri = newVal;
+                                  });
+                                },
+                                value: _industri,
+                              ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataCities == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select City"),
+                                elevation: 3,
+                                isExpanded: true,
+                                items: dataCities?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['name'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _city = newVal;
+                                  });
+                                },
+                                value: _city,
+                              ),
+                      ),
+                      Container(
+                        width: 345.0,
+                        margin: EdgeInsets.only(
+                            bottom: 20.0, left: 25.0, right: 25.0),
+                        decoration: ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                                style: BorderStyle.solid),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(5.0)),
+                          ),
+                        ),
+                        child: dataJobtype == null
+                            ? Column(
+                                children: <Widget>[
+                                  new CircularProgressIndicator(
+                                    backgroundColor: Colors.white,
+                                    valueColor:
+                                        new AlwaysStoppedAnimation<Color>(
+                                            Colors.orange),
+                                  ),
+                                  new Text("Loading"),
+                                ],
+                              )
+                            : new DropdownButton(
+                                hint: Text("Select Job Type"),
+                                elevation: 3,
+                                items: dataJobtype?.map((item) {
+                                      return new DropdownMenuItem(
+                                        value: item['id'].toString(),
+                                        child: new Text(
+                                          item['name'],
+                                          style: new TextStyle(fontSize: 16.0),
+                                        ),
+                                      );
+                                    })?.toList() ??
+                                    [],
+                                onChanged: (newVal) {
+                                  setState(() {
+                                    _jobtype = newVal;
+                                  });
+                                },
+                                value: _jobtype,
+                              ),
+                      ),
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 20.0, left: 25.0, right: 25.0),
+                          child: TextField(
+                            maxLines: null,
+                            controller: _jobDescController,
+                            // obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Job Description',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }
