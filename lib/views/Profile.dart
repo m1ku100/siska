@@ -23,6 +23,8 @@ import 'package:siska/views/modal/skill.dart';
 import 'package:siska/views/modal/training.dart';
 import 'package:siska/views/modal/work.dart';
 
+import 'package:siska/views/modal/update/work.dart';
+
 class Profile extends StatefulWidget {
   @override
   _ProfileState createState() => _ProfileState();
@@ -125,17 +127,18 @@ class _ProfileState extends State<Profile> {
       setState(() {
         _isLoading = false;
       });
-      _showAlert("Upload Success");
+      _showAlert("Yeey!!", "upload Success", "assets/images/nutmeg.gif");
     } else if (response.statusCode == 500) {
       setState(() {
         _isLoading = false;
       });
-      _showAlert("server error");
+      _showAlert('Oops!!', 'Internal Serve Error. Please try again',
+          "assets/images/load.gif");
     } else {
       setState(() {
         _isLoading = false;
       });
-      _showAlert("Upload Failed");
+      _showAlert('Oops!!', 'upload failed', "assets/images/load.gif");
     }
   }
 
@@ -171,30 +174,32 @@ class _ProfileState extends State<Profile> {
         await this.getEdu();
         await this.getExp();
         await this.getOrg();
-       new Future.delayed(Duration(seconds: 1), () {
+        new Future.delayed(Duration(seconds: 1), () {
           setState(() {
             _isLoading = false;
           });
         });
       }
     } on SocketException catch (_) {
-      _showAlert('Your not connected');
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
     }
   }
 
-  void _showAlert(String str) {
-    if (str.isEmpty) return; //if text is empty
+  void _showAlert(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
 
     AssetGiffyDialog alert = new AssetGiffyDialog(
-      image: Image.asset("assets/images/no_connection.gif"),
+      image: Image.asset(assets),
       title: Text(
-        str,
+        titl,
         style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
       ),
-      description: Text("Turn On your data or Wi-Fi"),
+      description: Text(desc),
       onOkButtonPressed: () {
         Navigator.pop(context);
       },
+      onlyOkButton: true,
       buttonOkColor: Colors.orange[200],
     );
 
@@ -264,6 +269,92 @@ class _ProfileState extends State<Profile> {
     setState(() {});
 
     check_connecti();
+  }
+
+  void _openWorkupdate(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => WorkUpdate(
+            id: id,
+          ),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  Future<void> deleteExp(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/exp/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
+            
+      }
+    }
+  }
+
+  void _showDialogdelete(String type, int id) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Warning"),
+          content: new Text("Are you sure want to delete this data ?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text(
+                "Delete",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                });
+                if (type == "exp") {
+                  deleteExp(id);
+                }
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _openEdu(BuildContext context) async {
@@ -710,7 +801,10 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _showDialogdelete(
+                                                          "exp", _exp[i]["id"]);
+                                                    },
                                                   ),
                                                   FlatButton(
                                                     child: Row(
@@ -724,7 +818,11 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      /* Edit Work */
+                                                      _openWorkupdate(context,
+                                                          _exp[i]["id"]);
+                                                    },
                                                   ),
                                                 ],
                                               ),
