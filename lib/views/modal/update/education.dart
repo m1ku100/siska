@@ -9,12 +9,14 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:dropdownfield/dropdownfield.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Education extends StatefulWidget {
+class EducationUpdate extends StatefulWidget {
+  final int id;
+  EducationUpdate({Key key, @required this.id}) : super(key: key);
   @override
-  _EducationState createState() => _EducationState();
+  _EducationUpdateState createState() => _EducationUpdateState(id);
 }
 
-class _EducationState extends State<Education> {
+class _EducationUpdateState extends State<EducationUpdate> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
   final myformat = DateFormat("yyyy-MM-dd");
@@ -26,15 +28,39 @@ class _EducationState extends State<Education> {
   TextEditingController _endController = new TextEditingController();
   TextEditingController _nilaiController = new TextEditingController();
 
+    int id;
+  _EducationUpdateState(this.id);
+
+
   Map<String, dynamic> formData;
   List dataDegree;
   List dataJurusan;
+  var dataEdu;
 
   String _tingkat;
   String _jurusan;
   String _token;
   bool isLoading = true;
   var data;
+
+  Future<String> getUser() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/edu/" + id.toString()),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataEdu = jsonDecode(item.body);
+      });
+      print("success get user");
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<String> getjurusan() async {
     /**
@@ -76,11 +102,19 @@ class _EducationState extends State<Education> {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        this.getDegree();
+        this.getUser();
+        await this.getDegree();
         await this.getjurusan();
         new Future.delayed(Duration(seconds: 2), () {
           setState(() {
             isLoading = false;
+            _awardContrller.text = dataEdu["awards"];
+            _schoolController.text = dataEdu["school_name"];
+            _startController.text = dataEdu["start_period"];
+            _endController.text = dataEdu["end_period"];
+            _nilaiController.text = dataEdu["nilai"];
+            _tingkat = dataEdu["tingkatpend_id"];
+            _jurusan = dataEdu["jurusanpend_id"];
           });
         });
       }
@@ -95,6 +129,7 @@ class _EducationState extends State<Education> {
       isLoading = true;
     });
     var data = jsonEncode({
+      "id" : id,
       "tingkatpend_id": _tingkat == null ? "" : _tingkat,
       "jurusanpend_id": _jurusan == null ? "" : _jurusan,
       "awards": _awardContrller.text == null ? "" : _awardContrller.text,
@@ -107,7 +142,7 @@ class _EducationState extends State<Education> {
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/profile/edu/save?token=" + _token,
+        "https://kariernesia.com/jwt/profile/edu/update?token=" + _token,
         body: data);
 
     var datauser = json.decode(response.body);
@@ -175,7 +210,7 @@ class _EducationState extends State<Education> {
                   Navigator.pop(context, jsonEncode({"load": false}))),
           backgroundColor: Colors.white,
           title: const Text(
-            'Add Data Education',
+            'Update Data Education',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [

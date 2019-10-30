@@ -24,6 +24,7 @@ import 'package:siska/views/modal/training.dart';
 import 'package:siska/views/modal/work.dart';
 
 import 'package:siska/views/modal/update/work.dart';
+import 'package:siska/views/modal/update/education.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -314,7 +315,31 @@ class _ProfileState extends State<Profile> {
         check_connecti();
         _showAlert(
             "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
-            
+      }
+    }
+  }
+
+  Future<void> deleteEdu(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/edu/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
       }
     }
   }
@@ -347,6 +372,8 @@ class _ProfileState extends State<Profile> {
                 });
                 if (type == "exp") {
                   deleteExp(id);
+                } else if (type == "edu") {
+                  deleteEdu(id);
                 }
                 Navigator.pop(context);
               },
@@ -362,6 +389,28 @@ class _ProfileState extends State<Profile> {
         context,
         new MaterialPageRoute(
           builder: (BuildContext context) => new Education(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openWorkEdu(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => EducationUpdate(
+            id: id,
+          ),
           fullscreenDialog: true,
         ));
 
@@ -929,7 +978,8 @@ class _ProfileState extends State<Profile> {
                                                       ],
                                                     ),
                                                     onPressed: () {
-                                                      print("Delete Edu");
+                                                      _showDialogdelete(
+                                                          "edu", _edu[i]["id"]);
                                                     },
                                                   ),
                                                   FlatButton(
@@ -944,7 +994,10 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _openWorkEdu(context,
+                                                          _edu[i]["id"]);
+                                                    },
                                                   ),
                                                 ],
                                               ),
