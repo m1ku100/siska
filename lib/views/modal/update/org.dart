@@ -7,16 +7,21 @@ import 'package:http/http.dart' as http;
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Org extends StatefulWidget {
+class OrgUpdate extends StatefulWidget {
+  final int id;
+  OrgUpdate({Key key, @required this.id}) : super(key: key);
   @override
-  _OrgState createState() => _OrgState();
+  _OrgUpdateState createState() => _OrgUpdateState(id);
 }
 
-class _OrgState extends State<Org> {
+class _OrgUpdateState extends State<OrgUpdate> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
   final myformat = DateFormat("yyyy-MM-dd");
   DateTime selectedDate = DateTime.now();
+
+   int id;
+  _OrgUpdateState(this.id);
 
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _startcontroller = new TextEditingController();
@@ -25,7 +30,27 @@ class _OrgState extends State<Org> {
   TextEditingController _descriptController = new TextEditingController();
 
   String _token;
-  bool _isLoading = false;
+  bool _isLoading = true;
+  var dataOrg;
+
+  Future<String> getUser() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/organization/" + id.toString()),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataOrg = jsonDecode(item.body);
+      });
+      print("success get user");
+    } catch (e) {
+      print(e);
+    }
+  }
 
   void _showAlert(String titl, String desc, String assets) {
     if (titl.isEmpty) return; //if text is empty
@@ -59,6 +84,7 @@ class _OrgState extends State<Org> {
       _isLoading = true;
     });
     var data = jsonEncode({
+      "id" : id,
       "name": _nameController.text == null ? "" : _nameController.text,
       "start_period": _startcontroller.text == null ? "" : _startcontroller.text,
       "end_period": _tillcontroller.text == null ? "" : _tillcontroller.text,
@@ -67,7 +93,7 @@ class _OrgState extends State<Org> {
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/profile/organization/save?token=" + _token,
+        "https://kariernesia.com/jwt/profile/organization/update?token=" + _token,
         body: data);
 
     var datauser = json.decode(response.body);
@@ -86,11 +112,34 @@ class _OrgState extends State<Org> {
     }
   }
 
+   void check_connecti() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        this.getUser();
+        new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+           _nameController.text = dataOrg["name"];
+           _startcontroller.text = dataOrg["start_period"];
+           _tillcontroller.text = dataOrg["end_period"];
+           _titleController.text = dataOrg["title"];
+           _descriptController.text = dataOrg["descript"];
+          });
+        });
+      }
+    } on SocketException catch (_) {
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     this._loadToken();
+    this.check_connecti();
   }
 
   @override
@@ -108,7 +157,7 @@ class _OrgState extends State<Org> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Add Data Organization',
+            'Update Data Organization',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [

@@ -25,6 +25,7 @@ import 'package:siska/views/modal/work.dart';
 
 import 'package:siska/views/modal/update/work.dart';
 import 'package:siska/views/modal/update/education.dart';
+import 'package:siska/views/modal/update/org.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -344,6 +345,31 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> deleteOrg(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/organization/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
+      }
+    }
+  }
+
   void _showDialogdelete(String type, int id) {
     // flutter defined function
     showDialog(
@@ -374,6 +400,8 @@ class _ProfileState extends State<Profile> {
                   deleteExp(id);
                 } else if (type == "edu") {
                   deleteEdu(id);
+                } else if (type == "org") {
+                  deleteOrg(id);
                 }
                 Navigator.pop(context);
               },
@@ -451,6 +479,28 @@ class _ProfileState extends State<Profile> {
         context,
         new MaterialPageRoute(
           builder: (BuildContext context) => new Org(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openOrgupdate(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => OrgUpdate(
+            id: id,
+          ),
           fullscreenDialog: true,
         ));
 
@@ -1216,7 +1266,9 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _showDialogdelete("org", _org[i]["id"]);
+                                                    },
                                                   ),
                                                   FlatButton(
                                                     child: Row(
@@ -1230,7 +1282,10 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _openOrgupdate(context,
+                                                          _org[i]["id"]);
+                                                    },
                                                   ),
                                                 ],
                                               ),
