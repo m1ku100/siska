@@ -351,15 +351,7 @@ class _JobState extends State<Job> {
                                               ),
                                             ],
                                           ),
-                                          GestureDetector(
-                                            child: Icon(
-                                              Icons.favorite_border,
-                                              size: _height / 30,
-                                            ),
-                                            onTap: () {
-                                              print('Fav');
-                                            },
-                                          ),
+                                          
                                         ],
                                       ),
                                     ),
