@@ -176,7 +176,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
             color: Colors.white,
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text("Detail Application"),
+          title: Text("Application Detail"),
         ),
         body: new SingleChildScrollView(
             child: Column(
@@ -435,104 +435,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(left: 20, right: 30, top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text("Suggested jobs for you",
-                      style: TextStyle(fontSize: 16)),
-                  GestureDetector(
-                      onTap: () {
-                        // Navigator.of(context).pushNamed(TRENDING_UI);
-                        print('Showing all');
-                      },
-                      child: Text(
-                        '',
-                        style: TextStyle(
-                          color: Colors.orange[300],
-                        ),
-                      ))
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Divider(
-                thickness: 1.0,
-              ),
-            ),
-            Container(
-              height: _height / 3.4,
-              //width: MediaQuery.of(context).size.width,
-              child: ListView.separated(
-                padding: EdgeInsets.all(5),
-                shrinkWrap: true,
-                itemCount: dataFavorite == null ? 0 : dataFavorite.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (BuildContext context, index) {
-                  return Container(
-                    child: Card(
-                      elevation: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                              margin:
-                                  EdgeInsets.only(top: 10, left: 10, right: 10),
-                              width: 100.0,
-                              height: 100.0,
-                              decoration: BoxDecoration(
-                                  color: Colors.orange[200],
-                                  image: DecorationImage(
-                                      image: NetworkImage(
-                                          dataFavorite[index]["user"]["ava"]),
-                                      fit: BoxFit.cover),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(75.0)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 7.0, color: Colors.black)
-                                  ])),
-                          Container(
-                            margin: EdgeInsets.only(top: 5),
-                            width: _width / 2.5,
-                            alignment: Alignment(0.0, 0.0),
-                            child: Center(
-                              child: Text(
-                                dataFavorite[index]["judul"],
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          ButtonTheme.bar(
-                            // make buttons use the appropriate styles for cards
-                            child: ButtonBar(
-                              children: <Widget>[
-                                FlatButton(
-                                  color: Colors.orangeAccent,
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        'Read More',
-                                        style: TextStyle(color: Colors.white),
-                                      )
-                                    ],
-                                  ),
-                                  onPressed: () {/* ... */},
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
-              ),
-            )
+           
           ],
         )));
   }
