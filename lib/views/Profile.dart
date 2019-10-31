@@ -27,6 +27,7 @@ import 'package:siska/views/modal/update/work.dart';
 import 'package:siska/views/modal/update/education.dart';
 import 'package:siska/views/modal/update/org.dart';
 import 'package:siska/views/modal/update/skill.dart';
+import 'package:siska/views/modal/update/language.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -268,11 +269,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
 
@@ -293,11 +289,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -312,11 +303,6 @@ class _ProfileState extends State<Profile> {
           builder: (BuildContext context) => new Work(),
           fullscreenDialog: true,
         ));
-
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
@@ -334,11 +320,6 @@ class _ProfileState extends State<Profile> {
           ),
           fullscreenDialog: true,
         ));
-
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
@@ -447,6 +428,56 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> deleteLang(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/lang/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
+      }
+    }
+  }
+
+  Future<void> deleteTraining(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/training/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
+      }
+    }
+  }
+
   void _showDialogdelete(String type, int id) {
     // flutter defined function
     showDialog(
@@ -481,6 +512,10 @@ class _ProfileState extends State<Profile> {
                   deleteOrg(id);
                 } else if (type == "skill") {
                   deleteSkill(id);
+                } else if (type == "lang") {
+                  deleteLang(id);
+                } else if (type == "training") {
+                  deleteTraining(id);
                 }
                 Navigator.pop(context);
               },
@@ -499,11 +534,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -521,11 +551,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -541,11 +566,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -560,11 +580,6 @@ class _ProfileState extends State<Profile> {
           builder: (BuildContext context) => new Org(),
           fullscreenDialog: true,
         ));
-
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
@@ -583,11 +598,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -602,11 +612,6 @@ class _ProfileState extends State<Profile> {
           builder: (BuildContext context) => new Skill(),
           fullscreenDialog: true,
         ));
-
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
@@ -625,11 +630,6 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
-
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {});
@@ -645,10 +645,22 @@ class _ProfileState extends State<Profile> {
           fullscreenDialog: true,
         ));
 
-    // Scaffold.of(context).showSnackBar(SnackBar(
-    //   content: Text("$result"),
-    //   duration: Duration(seconds: 3),
-    // ));
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openLanguageUpdate(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => LanguageUpdate(
+            id: id,
+          ),
+          fullscreenDialog: true,
+        ));
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
@@ -1480,7 +1492,10 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _showDialogdelete("lang",
+                                                          _lang[i]["id"]);
+                                                    },
                                                   ),
                                                   FlatButton(
                                                     child: Row(
@@ -1494,7 +1509,11 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _openLanguageUpdate(
+                                                          context,
+                                                          _lang[i]["id"]);
+                                                    },
                                                   ),
                                                 ],
                                               ),

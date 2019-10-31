@@ -7,12 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Language extends StatefulWidget {
+class LanguageUpdate extends StatefulWidget {
+  final int id;
+  LanguageUpdate({Key key, @required this.id}) : super(key: key);
   @override
-  _LanguageState createState() => _LanguageState();
+  _LanguageUpdateState createState() => _LanguageUpdateState(id);
 }
 
-class _LanguageState extends State<Language> {
+class _LanguageUpdateState extends State<LanguageUpdate> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
   final myformat = DateFormat("yyyy-MM-dd");
@@ -21,25 +23,48 @@ class _LanguageState extends State<Language> {
   TextEditingController _namecontroller = new TextEditingController();
   TextEditingController _levelcontroller = new TextEditingController();
 
-  bool _isLoading = false;
+  int id;
+  _LanguageUpdateState(this.id);
+
+  bool _isLoading = true;
   String _token;
   String _levelSpoken;
   String _levelWritten;
-  var data;
+  var dataLang;
   var level = ["Good", "Fair", "Poor", "Rahter Not Say"];
+
+  Future<String> getUser() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/lang/" + id.toString()),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataLang = jsonDecode(item.body);
+      });
+      print("success get user");
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<List> _save() async {
     setState(() {
       _isLoading = true;
     });
     var data = jsonEncode({
+      "id": id,
       "name": _namecontroller.text == null ? "" : _namecontroller.text,
       "spoken_lvl": _levelSpoken == null ? "" : _levelSpoken,
       "written_lvl": _levelWritten == null ? "" : _levelWritten,
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/profile/lang/save?token=" + _token,
+        "https://kariernesia.com/jwt/profile/lang/update?token=" + _token,
         body: data);
 
     var datauser = json.decode(response.body);
@@ -78,6 +103,26 @@ class _LanguageState extends State<Language> {
     showDialog(context: context, child: alert);
   }
 
+  void check_connecti() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        this.getUser();
+        new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+            _namecontroller.text = dataLang["name"];
+            _levelSpoken = dataLang["spoken_lvl"];
+            _levelWritten = dataLang["written_lvl"];
+          });
+        });
+      }
+    } on SocketException catch (_) {
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
+    }
+  }
+
   _loadToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
@@ -90,6 +135,7 @@ class _LanguageState extends State<Language> {
     // TODO: implement initState
     super.initState();
     this._loadToken();
+    this.check_connecti();
   }
 
   @override

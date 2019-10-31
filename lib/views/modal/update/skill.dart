@@ -35,8 +35,8 @@ class _SkillUpdateState extends State<SkillUpdate> {
      */
     try {
       http.Response item = await http.get(
-          Uri.encodeFull("https://kariernesia.com/jwt/profile/skill/" +
-              id.toString()),
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/skill/" + id.toString()),
           headers: {"Accept": "application/json"});
 
       this.setState(() {
@@ -53,7 +53,7 @@ class _SkillUpdateState extends State<SkillUpdate> {
       _isLoading = true;
     });
     var data = jsonEncode({
-      "id" : id,
+      "id": id,
       "name": _namecontroller.text == null ? "" : _namecontroller.text,
       "level": _level == null ? "" : _level,
     });
@@ -98,7 +98,7 @@ class _SkillUpdateState extends State<SkillUpdate> {
     showDialog(context: context, child: alert);
   }
 
-   void check_connecti() async {
+  void check_connecti() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -106,9 +106,8 @@ class _SkillUpdateState extends State<SkillUpdate> {
         new Future.delayed(Duration(seconds: 1), () {
           setState(() {
             _isLoading = false;
-           _namecontroller.text = dataSkill["name"];
-           _level= dataSkill["level"];
-          
+            _namecontroller.text = dataSkill["name"];
+            _level = dataSkill["level"];
           });
         });
       }
@@ -132,7 +131,6 @@ class _SkillUpdateState extends State<SkillUpdate> {
     print(id);
     this._loadToken();
     this.check_connecti();
-    
   }
 
   @override
