@@ -28,6 +28,7 @@ import 'package:siska/views/modal/update/education.dart';
 import 'package:siska/views/modal/update/org.dart';
 import 'package:siska/views/modal/update/skill.dart';
 import 'package:siska/views/modal/update/language.dart';
+import 'package:siska/views/modal/update/training.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -563,6 +564,23 @@ class _ProfileState extends State<Profile> {
         context,
         new MaterialPageRoute(
           builder: (BuildContext context) => new Training(),
+          fullscreenDialog: true,
+        ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openTrainingUpdate(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => TrainingUpdate(
+            id: id,
+          ),
           fullscreenDialog: true,
         ));
 
@@ -1193,7 +1211,7 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {_showDialogdelete("training", _training[i]["id"]);},
                                                   ),
                                                   FlatButton(
                                                     child: Row(
@@ -1207,7 +1225,11 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {/* ... */},
+                                                    onPressed: () {
+                                                      _openTrainingUpdate(
+                                                          context,
+                                                          _training[i]["id"]);
+                                                    },
                                                   ),
                                                 ],
                                               ),

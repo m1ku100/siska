@@ -7,33 +7,57 @@ import 'package:http/http.dart' as http;
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Training extends StatefulWidget {
+class TrainingUpdate extends StatefulWidget {
+  final int id;
+  TrainingUpdate({Key key, @required this.id}) : super(key: key);
   @override
-  _TrainingState createState() => _TrainingState();
+  _TrainingUpdateState createState() => _TrainingUpdateState(id);
 }
 
-class _TrainingState extends State<Training> {
+class _TrainingUpdateState extends State<TrainingUpdate> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
   final myformat = DateFormat("yyyy-MM-dd");
   DateTime selectedDate = DateTime.now();
+
+  int id;
+  _TrainingUpdateState(this.id);
 
   TextEditingController _namecontroller = new TextEditingController();
   TextEditingController _issuedateController = new TextEditingController();
   TextEditingController _issuedbyController = new TextEditingController();
   TextEditingController _descriptController = new TextEditingController();
 
-  bool _isLoading = false;
+  bool _isLoading = true;
   String _token;
   String _level;
-  var data;
-  var level = ["Good", "Fair", "Poor", "Rahter Not Say"];
+  var dataTraining;
+
+  Future<String> getUser() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/profile/training/" + id.toString()),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataTraining = jsonDecode(item.body);
+      });
+      print("success get user");
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<List> _save() async {
     setState(() {
       _isLoading = true;
     });
     var data = jsonEncode({
+      "id" : id,
       "name": _namecontroller.text == null ? "" : _namecontroller.text,
       "issueddate":
           _issuedateController.text == null ? "" : _issuedateController.text,
@@ -44,7 +68,7 @@ class _TrainingState extends State<Training> {
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/profile/training/save?token=" + _token,
+        "https://kariernesia.com/jwt/profile/training/update?token=" + _token,
         body: data);
 
     var datauser = json.decode(response.body);
@@ -60,6 +84,27 @@ class _TrainingState extends State<Training> {
       } else if (datauser['success'] == true) {
         Navigator.pop(context, jsonEncode({"load": true}));
       }
+    }
+  }
+
+  void check_connecti() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        this.getUser();
+        new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+            _namecontroller.text = dataTraining["name"];
+            _issuedateController.text = dataTraining["issueddate"];
+            _issuedbyController.text = dataTraining["issuedby"];
+            _descriptController.text = dataTraining["descript"];
+          });
+        });
+      }
+    } on SocketException catch (_) {
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
     }
   }
 
@@ -107,7 +152,9 @@ class _TrainingState extends State<Training> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(id);
     this._loadToken();
+    this.check_connecti();
   }
 
   @override
@@ -125,7 +172,7 @@ class _TrainingState extends State<Training> {
           ),
           backgroundColor: Colors.white,
           title: const Text(
-            'Add Data Training',
+            'Update Data Training',
             style: TextStyle(color: Colors.orangeAccent),
           ),
           actions: [
