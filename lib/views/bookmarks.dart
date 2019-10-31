@@ -71,7 +71,7 @@ class _BookmarkState extends State<Bookmark> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         this.getApply();
-        new Future.delayed(Duration(seconds: 1), () {
+       new Future.delayed(Duration(seconds: 2), () {
           setState(() {
             isLoading = false;
           });
