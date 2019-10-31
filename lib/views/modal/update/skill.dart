@@ -7,37 +7,59 @@ import 'package:http/http.dart' as http;
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Skill extends StatefulWidget {
+class SkillUpdate extends StatefulWidget {
+  final int id;
+  SkillUpdate({Key key, @required this.id}) : super(key: key);
   @override
-  _SkillState createState() => _SkillState();
+  _SkillUpdateState createState() => _SkillUpdateState(id);
 }
 
-class _SkillState extends State<Skill> {
+class _SkillUpdateState extends State<SkillUpdate> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final formKey = GlobalKey<FormState>();
-  final myformat = DateFormat("yyyy-MM-dd");
-  DateTime selectedDate = DateTime.now();
+
+  int id;
+  _SkillUpdateState(this.id);
 
   TextEditingController _namecontroller = new TextEditingController();
   TextEditingController _levelcontroller = new TextEditingController();
 
-  bool _isLoading = false;
+  bool _isLoading = true;
   String _token;
   String _level;
-  var data;
-  var level = ["Good", "Fair","Poor", "Rahter Not Say"];
+  var dataSkill;
+  var level = ["Good", "Fair", "Poor", "Rahter Not Say"];
+
+  Future<String> getUser() async {
+    /**
+     * Fetch Data from Uri
+     */
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull("https://kariernesia.com/jwt/profile/skill/" +
+              id.toString()),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        dataSkill = jsonDecode(item.body);
+      });
+      print("success get user");
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<List> _save() async {
     setState(() {
       _isLoading = true;
     });
     var data = jsonEncode({
+      "id" : id,
       "name": _namecontroller.text == null ? "" : _namecontroller.text,
       "level": _level == null ? "" : _level,
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/profile/skill/save?token=" + _token,
+        "https://kariernesia.com/jwt/profile/skill/update?token=" + _token,
         body: data);
 
     var datauser = json.decode(response.body);
@@ -76,6 +98,26 @@ class _SkillState extends State<Skill> {
     showDialog(context: context, child: alert);
   }
 
+   void check_connecti() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        this.getUser();
+        new Future.delayed(Duration(seconds: 1), () {
+          setState(() {
+            _isLoading = false;
+           _namecontroller.text = dataSkill["name"];
+           _level= dataSkill["level"];
+          
+          });
+        });
+      }
+    } on SocketException catch (_) {
+      _showAlert(
+          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
+    }
+  }
+
   _loadToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
@@ -87,7 +129,10 @@ class _SkillState extends State<Skill> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(id);
     this._loadToken();
+    this.check_connecti();
+    
   }
 
   @override
@@ -147,10 +192,9 @@ class _SkillState extends State<Skill> {
                             controller: _namecontroller,
                             // obscureText: true,
                             decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Skill Name',
-                              hintText: 'ex. Junior Web Programming'
-                            ),
+                                border: OutlineInputBorder(),
+                                labelText: 'Skill Name',
+                                hintText: 'ex. Junior Web Programming'),
                           ),
                         ),
                       ),

@@ -26,6 +26,7 @@ import 'package:siska/views/modal/work.dart';
 import 'package:siska/views/modal/update/work.dart';
 import 'package:siska/views/modal/update/education.dart';
 import 'package:siska/views/modal/update/org.dart';
+import 'package:siska/views/modal/update/skill.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -44,6 +45,9 @@ class _ProfileState extends State<Profile> {
   List _edu;
   List _exp;
   List _org;
+  List _training;
+  List _skill;
+  List _lang;
 
   Future<String> getLatest() async {
     try {
@@ -98,6 +102,51 @@ class _ProfileState extends State<Profile> {
 
       this.setState(() {
         _org = jsonDecode(item.body);
+      });
+      print("Success org");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> getTraining() async {
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(AUTH + "profile/show/training?token=" + _token),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        _training = jsonDecode(item.body);
+      });
+      print("Success org");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> getSkill() async {
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(AUTH + "profile/show/skill?token=" + _token),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        _skill = jsonDecode(item.body);
+      });
+      print("Success org");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> getlang() async {
+    try {
+      http.Response item = await http.get(
+          Uri.encodeFull(AUTH + "profile/show/lang?token=" + _token),
+          headers: {"Accept": "application/json"});
+
+      this.setState(() {
+        _lang = jsonDecode(item.body);
       });
       print("Success org");
     } catch (e) {
@@ -176,6 +225,9 @@ class _ProfileState extends State<Profile> {
         await this.getEdu();
         await this.getExp();
         await this.getOrg();
+        await this.getTraining();
+        await this.getSkill();
+        await this.getlang();
         new Future.delayed(Duration(seconds: 1), () {
           setState(() {
             _isLoading = false;
@@ -370,6 +422,31 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> deleteSkill(id) async {
+    final response = await http.post(
+      "https://kariernesia.com/jwt/profile/skill/delete/" +
+          id.toString() +
+          "?token=" +
+          _token,
+    );
+    var datauser = json.decode(response.body);
+
+    if (datauser.length == 0) {
+      setState(() {});
+    } else {
+      if (datauser['success'] == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        _showAlert("Oops!!", datauser['message'], "assets/images/load.gif");
+      } else if (datauser['success'] == true) {
+        check_connecti();
+        _showAlert(
+            "Yeey!!", "Data Successfully Deleted", "assets/images/nutmeg.gif");
+      }
+    }
+  }
+
   void _showDialogdelete(String type, int id) {
     // flutter defined function
     showDialog(
@@ -402,6 +479,8 @@ class _ProfileState extends State<Profile> {
                   deleteEdu(id);
                 } else if (type == "org") {
                   deleteOrg(id);
+                } else if (type == "skill") {
+                  deleteSkill(id);
                 }
                 Navigator.pop(context);
               },
@@ -521,6 +600,28 @@ class _ProfileState extends State<Profile> {
         context,
         new MaterialPageRoute(
           builder: (BuildContext context) => new Skill(),
+          fullscreenDialog: true,
+        ));
+
+    // Scaffold.of(context).showSnackBar(SnackBar(
+    //   content: Text("$result"),
+    //   duration: Duration(seconds: 3),
+    // ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+    setState(() {});
+
+    check_connecti();
+  }
+
+  void _openSkillUpdate(BuildContext context, int id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => SkillUpdate(
+            id: id,
+          ),
           fullscreenDialog: true,
         ));
 
@@ -832,32 +933,7 @@ class _ProfileState extends State<Profile> {
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
                         child: SingleChildScrollView(
                           child: _exp.length == 0
-                              ? Card(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Center(
-                                        child: Image.asset(
-                                          "assets/images/empty_data.png",
-                                          height: 150.0,
-                                          width: 300.0,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text("Your data is empty",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      ButtonTheme.bar(
-                                        // make buttons use the appropriate styles for cards
-                                        child: ButtonBar(
-                                          children: <Widget>[],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
+                              ? cardNUll()
                               : ListView.builder(
                                   physics: NeverScrollableScrollPhysics(),
                                   padding: EdgeInsets.all(5),
@@ -958,32 +1034,7 @@ class _ProfileState extends State<Profile> {
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
                         child: SingleChildScrollView(
                           child: _edu.length == 0
-                              ? Card(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Center(
-                                        child: Image.asset(
-                                          "assets/images/empty_data.png",
-                                          height: 150.0,
-                                          width: 300.0,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text("Your data is empty",
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      ButtonTheme.bar(
-                                        // make buttons use the appropriate styles for cards
-                                        child: ButtonBar(
-                                          children: <Widget>[],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
+                              ? cardNUll()
                               : ListView.builder(
                                   physics: NeverScrollableScrollPhysics(),
                                   padding: EdgeInsets.all(5),
@@ -1083,30 +1134,15 @@ class _ProfileState extends State<Profile> {
                     Divider(),
                     Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
-                        child: _edu == null
-                            ? Card(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Center(
-                                      child: Image.asset(
-                                          "assets/images/empty_data.png"),
-                                    ),
-                                    ButtonTheme.bar(
-                                      // make buttons use the appropriate styles for cards
-                                      child: ButtonBar(
-                                        children: <Widget>[],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                        child: _training.length == 0
+                            ? cardNUll()
                             : SingleChildScrollView(
                                 child: ListView.builder(
                                   physics: NeverScrollableScrollPhysics(),
                                   padding: EdgeInsets.all(5),
                                   shrinkWrap: true,
-                                  itemCount: _edu == null ? 0 : _edu.length,
+                                  itemCount:
+                                      _training == null ? 0 : _training.length,
                                   scrollDirection: Axis.vertical,
                                   itemBuilder: (context, i) {
                                     return new GestureDetector(
@@ -1196,32 +1232,7 @@ class _ProfileState extends State<Profile> {
                     Container(
                         margin: EdgeInsets.only(left: 10, right: 10, top: 5),
                         child: _org.length == 0
-                            ? Card(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    Center(
-                                      child: Image.asset(
-                                        "assets/images/empty_data.png",
-                                        height: 150.0,
-                                        width: 300.0,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text("Your data is empty",
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    ButtonTheme.bar(
-                                      // make buttons use the appropriate styles for cards
-                                      child: ButtonBar(
-                                        children: <Widget>[],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                            ? cardNUll()
                             : SingleChildScrollView(
                                 child: ListView.builder(
                                   physics: NeverScrollableScrollPhysics(),
@@ -1267,7 +1278,8 @@ class _ProfileState extends State<Profile> {
                                                       ],
                                                     ),
                                                     onPressed: () {
-                                                      _showDialogdelete("org", _org[i]["id"]);
+                                                      _showDialogdelete(
+                                                          "org", _org[i]["id"]);
                                                     },
                                                   ),
                                                   FlatButton(
@@ -1319,59 +1331,85 @@ class _ProfileState extends State<Profile> {
                     ),
                     Divider(),
                     Container(
-                      margin: EdgeInsets.only(left: 10, right: 10, top: 5),
-                      child: Card(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const ListTile(
-                              leading: Image(
-                                image: AssetImage("assets/menu/exp.png"),
-                              ),
-                              title: Text('The Enchanted Nightingale'),
-                              subtitle: Text(
-                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
-                            ),
-                            ButtonTheme.bar(
-                              // make buttons use the appropriate styles for cards
-                              child: ButtonBar(
-                                children: <Widget>[
-                                  FlatButton(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.delete,
-                                          color: Colors.redAccent,
+                        margin: EdgeInsets.only(left: 10, right: 10, top: 5),
+                        child: _skill.length == 0
+                            ? cardNUll()
+                            : SingleChildScrollView(
+                                child: ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.all(5),
+                                  shrinkWrap: true,
+                                  itemCount: _skill == null ? 0 : _skill.length,
+                                  scrollDirection: Axis.vertical,
+                                  itemBuilder: (context, i) {
+                                    return new GestureDetector(
+                                      onTap: () {},
+                                      child: Card(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            const ListTile(
+                                              leading: Image(
+                                                image: AssetImage(
+                                                    "assets/menu/skill.png"),
+                                              ),
+                                              title: Text(
+                                                  'The Enchanted Nightingale'),
+                                              subtitle: Text(
+                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                            ),
+                                            ButtonTheme.bar(
+                                              // make buttons use the appropriate styles for cards
+                                              child: ButtonBar(
+                                                children: <Widget>[
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Colors.redAccent,
+                                                        ),
+                                                        Text(
+                                                          'DELETE',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {
+                                                      _showDialogdelete("skill",
+                                                          _skill[i]["id"]);
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(Icons.edit),
+                                                        Text(
+                                                          'EDIT',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .blueAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {
+                                                      _openSkillUpdate(context,
+                                                          _skill[i]["id"]);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          'DELETE',
-                                          style: TextStyle(
-                                              color: Colors.redAccent),
-                                        )
-                                      ],
-                                    ),
-                                    onPressed: () {/* ... */},
-                                  ),
-                                  FlatButton(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(Icons.edit),
-                                        Text(
-                                          'EDIT',
-                                          style: TextStyle(
-                                              color: Colors.blueAccent),
-                                        )
-                                      ],
-                                    ),
-                                    onPressed: () {/* ... */},
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )),
                     Container(
                       margin: EdgeInsets.only(left: 20, right: 30, top: 10),
                       child: Row(
@@ -1395,59 +1433,79 @@ class _ProfileState extends State<Profile> {
                     ),
                     Divider(),
                     Container(
-                      margin: EdgeInsets.only(left: 10, right: 10, top: 5),
-                      child: Card(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const ListTile(
-                              leading: Image(
-                                image: AssetImage("assets/menu/edu.png"),
-                              ),
-                              title: Text('The Enchanted Nightingale'),
-                              subtitle: Text(
-                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
-                            ),
-                            ButtonTheme.bar(
-                              // make buttons use the appropriate styles for cards
-                              child: ButtonBar(
-                                children: <Widget>[
-                                  FlatButton(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.delete,
-                                          color: Colors.redAccent,
+                        margin: EdgeInsets.only(left: 10, right: 10, top: 5),
+                        child: _lang.length == 0
+                            ? cardNUll()
+                            : SingleChildScrollView(
+                                child: ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.all(5),
+                                  shrinkWrap: true,
+                                  itemCount: _lang == null ? 0 : _lang.length,
+                                  scrollDirection: Axis.vertical,
+                                  itemBuilder: (context, i) {
+                                    return new GestureDetector(
+                                      onTap: () {},
+                                      child: Card(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            const ListTile(
+                                              leading: Image(
+                                                image: AssetImage(
+                                                    "assets/menu/lang.png"),
+                                              ),
+                                              title: Text(
+                                                  'The Enchanted Nightingale'),
+                                              subtitle: Text(
+                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                            ),
+                                            ButtonTheme.bar(
+                                              // make buttons use the appropriate styles for cards
+                                              child: ButtonBar(
+                                                children: <Widget>[
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Colors.redAccent,
+                                                        ),
+                                                        Text(
+                                                          'DELETE',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .redAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {/* ... */},
+                                                  ),
+                                                  FlatButton(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(Icons.edit),
+                                                        Text(
+                                                          'EDIT',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .blueAccent),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    onPressed: () {/* ... */},
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          'DELETE',
-                                          style: TextStyle(
-                                              color: Colors.redAccent),
-                                        )
-                                      ],
-                                    ),
-                                    onPressed: () {/* ... */},
-                                  ),
-                                  FlatButton(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(Icons.edit),
-                                        Text(
-                                          'EDIT',
-                                          style: TextStyle(
-                                              color: Colors.blueAccent),
-                                        )
-                                      ],
-                                    ),
-                                    onPressed: () {/* ... */},
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )),
                   ],
                 ),
               ));
@@ -1711,6 +1769,34 @@ class _ProfileState extends State<Profile> {
           ),
         )
       ],
+    );
+  }
+
+  Widget cardNUll() {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Center(
+            child: Image.asset(
+              "assets/images/empty_data.png",
+              height: 150.0,
+              width: 300.0,
+            ),
+          ),
+          Center(
+            child: Text("Your data is empty",
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+          ),
+          ButtonTheme.bar(
+            // make buttons use the appropriate styles for cards
+            child: ButtonBar(
+              children: <Widget>[],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
