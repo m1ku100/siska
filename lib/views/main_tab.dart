@@ -72,7 +72,7 @@ class _MainTabState extends State<MainTab> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.message),
+              icon: Icon(Icons.business_center),
               onPressed: () {
                 setState(() {
                   currentTab = 1;
