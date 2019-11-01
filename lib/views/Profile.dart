@@ -760,9 +760,7 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.assignment_ind),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["name"]),
+                                        child: Text( dataJson["name"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -771,10 +769,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.cake),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["birthday"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["birthday"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -783,10 +779,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.wc),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["gender"]),
+                                        child: Text( dataJson["seeker"]["data"]
+                                                ["gender"] ?? " - "),
                                       )
                                     ],
                                   ),
@@ -795,10 +789,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.wc),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["relationship"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["relationship"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -807,10 +799,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.flag),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["nationality"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["nationality"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -819,13 +809,13 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.attach_money),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                    ["lowest_salary"] +
-                                                " - " +
-                                                dataJson["seeker"]["data"]
-                                                    ["highest_salary"]),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Text( dataJson["seeker"]["data"] ["lowest_salary"] ?? " 0 "),
+                                            Text(" - "),
+                                            Text(dataJson["seeker"]["data"] ["highest_salary"]?? " 0 ")
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
@@ -883,9 +873,7 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.email),
                                       Container(
                                           margin: EdgeInsets.only(left: 10),
-                                          child: Text(dataJson == null
-                                              ? " "
-                                              : dataJson["email"]))
+                                          child: Text(dataJson["email"]?? " - "))
                                     ],
                                   ),
                                   Row(
@@ -893,10 +881,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.phone),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["phone"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["phone"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -905,10 +891,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.home),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["address"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["address"]?? " - "),
                                       )
                                     ],
                                   ),
@@ -917,10 +901,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.chrome_reader_mode),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text(dataJson == null
-                                            ? " "
-                                            : dataJson["seeker"]["data"]
-                                                ["zip_code"]),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["zip_code"]?? " - "),
                                       )
                                     ],
                                   ),
