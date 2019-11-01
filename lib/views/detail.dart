@@ -187,7 +187,7 @@ class _DetailState extends State<Detail> {
             color: Colors.white,
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text(dataJson == null ? " " : dataJson["judul"]),
+          title: Text("Job Details"),
         ),
         body: new SingleChildScrollView(
             child: Column(
