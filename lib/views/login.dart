@@ -175,7 +175,9 @@ class _LoginScreenState extends State<LoginScreen>
       if (datauser['success'] == false) {
         // Navigator.pushReplacementNamed(context, '/AdminPage');
         _showAlert("Oops!!", datauser['error'], "assets/images/load.gif");
-      } else if (datauser['success'] == true) {}
+      } else if (datauser['success'] == true) {
+         _showAlert("Yeey!!", datauser['message'], "assets/images/email_check.gif");
+      }
     }
   }
 
