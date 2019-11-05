@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:siska/views/bookmarks.dart';
 import 'package:siska/views/invitation.dart';
 import 'package:siska/views/setting.dart';
+import 'package:siska/views/job.dart';
 
 class HomeClone extends StatefulWidget {
   @override
@@ -25,6 +26,8 @@ class HomeClone extends StatefulWidget {
 class _HomeCloneState extends State<HomeClone> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var dataJson;
+
+  TextEditingController _searchController = new TextEditingController();
 
   bool isLoading = true;
   bool isExpanded = false;
@@ -146,6 +149,16 @@ class _HomeCloneState extends State<HomeClone> {
         );
       },
     );
+  }
+
+  void _search(){
+     Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Job(
+                  tile: _searchController.text,
+                ),
+              ));
   }
 
   void _showAlert(String str) {
@@ -354,6 +367,7 @@ class _HomeCloneState extends State<HomeClone> {
             elevation: 8,
             child: Container(
               child: TextFormField(
+                controller: _searchController,
                 cursorColor: Colors.orange[200],
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
@@ -365,6 +379,9 @@ class _HomeCloneState extends State<HomeClone> {
                       borderRadius: BorderRadius.circular(30.0),
                       borderSide: BorderSide.none),
                 ),
+                onFieldSubmitted: (contex){
+                  _search();
+                },
               ),
             ),
           ),
@@ -402,21 +419,21 @@ class _HomeCloneState extends State<HomeClone> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            print('Editing location');
-                          },
-                          child: Icon(
-                            Icons.edit_location,
-                            color: Colors.white,
-                            size: _height / 40,
-                          ),
-                        ),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     print('Editing location');
+                        //   },
+                        //   child: Icon(
+                        //     Icons.edit_location,
+                        //     color: Colors.white,
+                        //     size: _height / 40,
+                        //   ),
+                        // ),
                         SizedBox(
                           width: 10,
                         ),
                         Flexible(
-                            child: Text('Noida',
+                            child: Text('KARIERNESIA',
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: _height / 50),
@@ -426,15 +443,21 @@ class _HomeCloneState extends State<HomeClone> {
                     ),
                   ),
                 ),
-                Opacity(
+                // Opacity(
+                //   opacity: 0.5,
+                //   child: GestureDetector(
+                //       onTap: () {},
+                //       child: Icon(
+                //         Icons.notifications,
+                //         color: Colors.black,
+                //         size: _height / 30,
+                //       )),
+                // ),
+                 Opacity(
                   opacity: 0.5,
-                  child: GestureDetector(
-                      onTap: () {},
-                      child: Icon(
-                        Icons.notifications,
-                        color: Colors.black,
-                        size: _height / 30,
-                      )),
+                  child: Container(
+                    width: _height / 30,
+                  )
                 ),
               ],
             )),

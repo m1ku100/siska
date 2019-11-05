@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:siska/views/clone_home.dart';
 import 'package:siska/views/apply.dart';
-
+import 'package:siska/views/job.dart';
 import 'package:siska/constant/Constant.dart';
 
 class MainTab extends StatefulWidget {
@@ -28,11 +28,16 @@ class _MainTabState extends State<MainTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      
       floatingActionButton: FloatingActionButton.extended(
         elevation: 3,
         onPressed: () {
-          Navigator.pushNamed(context, JOB_SCREEN);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Job(
+                  tile: "",
+                ),
+              ));
         },
         backgroundColor: Colors.orange[200],
         icon: Icon(Icons.search),

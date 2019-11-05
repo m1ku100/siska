@@ -5,33 +5,34 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:siska/constant/Constant.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:siska/constant/Constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:siska/views/detail.dart';
 
-class Detail extends StatefulWidget {
-  final int id;
-  Detail({Key key, @required this.id}) : super(key: key);
+class BookmarkDetail extends StatefulWidget {
+  final String id;
+  BookmarkDetail({Key key, @required this.id}) : super(key: key);
   @override
-  _DetailState createState() => _DetailState(id);
+  _BookmarkDetailState createState() => _BookmarkDetailState(id);
 }
 
-class _DetailState extends State<Detail> {
+class _BookmarkDetailState extends State<BookmarkDetail> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var dataJson;
 
   final bool horizontal = true;
   double _height;
   double _width;
-  int id;
-  _DetailState(this.id);
+  String id;
   String _token, _msg;
+  _BookmarkDetailState(this.id);
+
+  List dataFavorite;
+
   bool isLoading = true;
   bool isBookmarked = false;
   bool isApplied = false;
-
-  List dataFavorite;
 
   Future<String> getData() async {
     /**
@@ -40,7 +41,7 @@ class _DetailState extends State<Detail> {
     try {
       http.Response item = await http.get(
           Uri.encodeFull("https://kariernesia.com/jwt/vacancy/" +
-              id.toString() +
+              id +
               "/detail?token=" +
               _token),
           headers: {"Accept": "application/json"});
@@ -69,13 +70,13 @@ class _DetailState extends State<Detail> {
     }
   }
 
-  Future<List> _bookmark() async {
+  Future<List> _abort() async {
     var data = jsonEncode({
       "vacancy_id": dataJson["id"],
     });
 
     final response = await http.post(
-        "https://kariernesia.com/jwt/vacancy/bookmarking?token=" + _token,
+        "https://kariernesia.com/jwt/vacancy/abort?token=" + _token,
         body: data);
 
     var dataChange = json.decode(response.body);
@@ -88,38 +89,6 @@ class _DetailState extends State<Detail> {
       if (dataChange['success'] == false) {
         _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
       } else if (dataChange['success'] == true) {
-        setState(() {
-          isLoading = true;
-        });
-        this.check_connecti();
-        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
-      }
-    }
-  }
-
-  Future<List> _apply() async {
-    var data = jsonEncode({
-      "vacancy_id": dataJson["id"],
-    });
-
-    final response = await http.post(
-        "https://kariernesia.com/jwt/vacancy/applying?token=" + _token,
-        body: data);
-
-    var dataChange = json.decode(response.body);
-
-    if (dataChange.length == 0) {
-      setState(() {
-        _msg = "Login Fail";
-      });
-    } else {
-      if (dataChange['success'] == false) {
-        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
-      } else if (dataChange['success'] == true) {
-        setState(() {
-          isLoading = true;
-        });
-        this.check_connecti();
         _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
       }
     }
@@ -147,8 +116,61 @@ class _DetailState extends State<Detail> {
         });
       }
     } on SocketException catch (_) {
-      _showAlert(
-          'Oops!!', 'Your not connected', '"assets/images/no_connection.gif"');
+      _showAlert_connect("You'are not connected");
+    }
+  }
+
+  Future<List> _bookmark() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/bookmarking?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+          isBookmarked = true;
+        });
+      }
+    }
+  }
+
+  Future<List> _apply() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/applying?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+          isApplied = true;
+        });
+      }
     }
   }
 
@@ -159,6 +181,25 @@ class _DetailState extends State<Detail> {
       content: new Text(str),
       duration: new Duration(seconds: 2),
     ));
+  }
+
+  void _showAlert_connect(String str) {
+    if (str.isEmpty) return; //if text is empty
+
+    AssetGiffyDialog alert = new AssetGiffyDialog(
+      image: Image.asset("assets/images/no_connection.gif"),
+      title: Text(
+        str,
+        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+      ),
+      description: Text("Turn On your data or Wi-Fi"),
+      onOkButtonPressed: () {
+        Navigator.pop(context);
+      },
+      buttonOkColor: Colors.orange[200],
+    );
+
+    showDialog(context: context, child: alert);
   }
 
   void _showAlert(String titl, String desc, String assets) {
@@ -248,6 +289,7 @@ class _DetailState extends State<Detail> {
                               ),
                             ),
                             ButtonBar(
+                              mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 isApplied
                                     ? RaisedButton(
@@ -275,7 +317,7 @@ class _DetailState extends State<Detail> {
                                           ],
                                         ),
                                         onPressed: () {
-                                         
+                                          _apply();
                                         },
                                       )
                                     : RaisedButton(

@@ -29,13 +29,20 @@ class _ApplyDetailState extends State<ApplyDetail> {
 
   List dataFavorite;
 
+  bool isLoading = true;
+  bool isBookmarked = false;
+  bool isApplied = false;
+
   Future<String> getData() async {
     /**
      * Fetch Data from Uri
      */
     try {
       http.Response item = await http.get(
-          Uri.encodeFull(BASE_URL + "clients/vacancies/" + id),
+          Uri.encodeFull("https://kariernesia.com/jwt/vacancy/" +
+              id +
+              "/detail?token=" +
+              _token),
           headers: {"Accept": "application/json"});
 
       this.setState(() {
@@ -82,7 +89,6 @@ class _ApplyDetailState extends State<ApplyDetail> {
         _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
       } else if (dataChange['success'] == true) {
         _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
-       
       }
     }
   }
@@ -94,17 +100,76 @@ class _ApplyDetailState extends State<ApplyDetail> {
     });
   }
 
-
-
   void check_connecti() async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         this.getData();
         await this.getFavorite();
+        new Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            isBookmarked = dataJson["bookmark"];
+            isApplied = dataJson["apply"];
+            isLoading = false;
+          });
+        });
       }
     } on SocketException catch (_) {
       _showAlert_connect("You'are not connected");
+    }
+  }
+
+  Future<List> _apply() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/applying?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+          isApplied = true;
+        });
+      }
+    }
+  }
+
+  Future<List> _bookmark() async {
+    var data = jsonEncode({
+      "vacancy_id": dataJson["id"],
+    });
+
+    final response = await http.post(
+        "https://kariernesia.com/jwt/vacancy/bookmarking?token=" + _token,
+        body: data);
+
+    var dataChange = json.decode(response.body);
+
+    if (dataChange.length == 0) {
+      setState(() {
+        _msg = "Login Fail";
+      });
+    } else {
+      if (dataChange['success'] == false) {
+        _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
+      } else if (dataChange['success'] == true) {
+        _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
+        setState(() {
+          isBookmarked = true;
+        });
+      }
     }
   }
 
@@ -136,7 +201,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
     showDialog(context: context, child: alert);
   }
 
- void _showAlert(String titl, String desc, String assets) {
+  void _showAlert(String titl, String desc, String assets) {
     if (titl.isEmpty) return; //if text is empty
 
     AssetGiffyDialog alert = new AssetGiffyDialog(
@@ -161,7 +226,6 @@ class _ApplyDetailState extends State<ApplyDetail> {
     // TODO: implement initState
     this._loadToken();
     this.check_connecti();
-    
   }
 
   @override
@@ -178,265 +242,339 @@ class _ApplyDetailState extends State<ApplyDetail> {
           ),
           title: Text("Application Detail"),
         ),
-        body: new SingleChildScrollView(
-            child: Column(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(top: 20),
-              child: Row(
+        body: isLoading
+            ? Container(
+                padding: EdgeInsets.only(top: 300),
+                child: Center(
+                  child: Column(
+                    children: <Widget>[
+                      CircularProgressIndicator(
+                        backgroundColor: Colors.white,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.orange),
+                      ),
+                      Text("Loading")
+                    ],
+                  ),
+                ))
+            : SingleChildScrollView(
+                child: Column(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(left: 10, right: 10),
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                            fit: BoxFit.fill,
-                            image: new NetworkImage(dataJson == null
-                                ? " "
-                                : dataJson["user"]["ava"]))),
+                    margin: EdgeInsets.only(top: 20),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          width: 100.0,
+                          height: 100.0,
+                          decoration: new BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: new DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: new NetworkImage(dataJson == null
+                                      ? " "
+                                      : dataJson["user"]["ava"]))),
+                        ),
+                        Container(
+                            child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              width: 200.0,
+                              child: AutoSizeText(
+                                dataJson == null ? " " : dataJson["judul"],
+                                style: TextStyle(fontSize: 30.0),
+                                maxLines: 2,
+                              ),
+                            ),
+                            ButtonBar(
+                              children: <Widget>[
+                                isApplied
+                                    ? RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(
+                                                    30.0)),
+                                        color: Colors.redAccent,
+                                        child: Row(
+                                          children: <Widget>[
+                                            Text(
+                                              'Abort  ',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            // Expanded(
+                                            //   child: Container(
+
+                                            //   ),
+                                            // ),
+                                            Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                        onPressed: () {
+                                          _abort();
+                                        },
+                                      )
+                                    : RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(
+                                                    30.0)),
+                                        color: Colors.orangeAccent,
+                                        child: Row(
+                                          children: <Widget>[
+                                            Text(
+                                              'Apply  ',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            // Expanded(
+                                            //   child: Container(
+
+                                            //   ),
+                                            // ),
+                                            Icon(
+                                              Icons.send,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                        onPressed: () {
+                                          _apply();
+                                        },
+                                      ),
+                              isBookmarked
+                                    ? RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(
+                                                    30.0)),
+                                        color: Colors.white,
+                                        child: Row(
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.bookmark,
+                                              color: Colors.orangeAccent,
+                                            ),
+                                            Text(
+                                              ' Bookmarked',
+                                              style: TextStyle(
+                                                  color: Colors.orangeAccent),
+                                            )
+                                          ],
+                                        ),
+                                        onPressed: () {
+                                          _bookmark();
+                                        },
+                                      )
+                                    : RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                new BorderRadius.circular(
+                                                    30.0)),
+                                        color: Colors.orangeAccent,
+                                        child: Row(
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.bookmark,
+                                              color: Colors.white,
+                                            ),
+                                            Text(
+                                              ' Bookmark',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            )
+                                          ],
+                                        ),
+                                        onPressed: () {
+                                          _bookmark();
+                                        },
+                                      ),
+                              ],
+                            )
+                          ],
+                        ))
+                      ],
+                    ),
                   ),
                   Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: Divider(
+                      thickness: 1.0,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: Card(
+                      elevation: 3,
                       child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        width: 200.0,
-                        child: AutoSizeText(
-                          dataJson == null ? " " : dataJson["judul"],
-                          style: TextStyle(fontSize: 30.0),
-                          maxLines: 2,
-                        ),
-                      ),
-                      ButtonBar(
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          RaisedButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0)),
-                            color: Colors.redAccent,
-                            child: Row(
-                              children: <Widget>[
-                                Text(
-                                  'Abort  ',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                // Expanded(
-                                //   child: Container(
-
-                                //   ),
-                                // ),
-                                Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                ),
-                              ],
+                          const ListTile(
+                            leading: Text(
+                              "DETAILS",
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            onPressed: () {
-                             _abort();
-                            },
+                            // title: Text('The Enchanted Nightingale'),
+                            // subtitle:
+                            //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
                           ),
-                          RaisedButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0)),
-                            color: Colors.orangeAccent,
-                            child: Row(
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Column(
                               children: <Widget>[
-                                Icon(
-                                  Icons.bookmark,
-                                  color: Colors.white,
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.account_balance_wallet),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : dataJson["salary"] + "  (IDR)"),
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                  ' Bookmark',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                )
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.pin_drop),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : dataJson["city"]),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.business_center),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : "Atleast " +
+                                              dataJson["pengalaman"] +
+                                              " years"),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.business),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : dataJson["job_func"]),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.school),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : dataJson["degrees"]),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.account_balance),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 10),
+                                      child: Text(dataJson == null
+                                          ? " "
+                                          : dataJson["majors"]),
+                                    )
+                                  ],
+                                ),
                               ],
                             ),
-                            onPressed: () {/* ... */},
+                          ),
+                          ButtonTheme.bar(
+                            // make buttons use the appropriate styles for cards
+                            child: ButtonBar(
+                              children: <Widget>[],
+                            ),
                           ),
                         ],
-                      )
-                    ],
-                  ))
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: Card(
+                      elevation: 3,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const ListTile(
+                            leading: Text(
+                              "REQUIREMENTS",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            // title: Text('The Enchanted Nightingale'),
+                            // subtitle:
+                            //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 5, right: 10),
+                            child: Html(
+                              data: dataJson == null ? " " : dataJson["syarat"],
+                            ),
+                          ),
+                          ButtonTheme.bar(
+                            // make buttons use the appropriate styles for cards
+                            child: ButtonBar(
+                              children: <Widget>[],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: Card(
+                      elevation: 3,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const ListTile(
+                            leading: Text(
+                              "RESPONSIBILITIES",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            // title: Text('The Enchanted Nightingale'),
+                            // subtitle:
+                            //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 5, right: 10),
+                            child: Html(
+                              data: dataJson == null
+                                  ? " "
+                                  : dataJson["tanggungjawab"],
+                            ),
+                          ),
+                          ButtonTheme.bar(
+                            // make buttons use the appropriate styles for cards
+                            child: ButtonBar(
+                              children: <Widget>[],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Divider(
-                thickness: 1.0,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Card(
-                elevation: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const ListTile(
-                      leading: Text(
-                        "DETAILS",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      // title: Text('The Enchanted Nightingale'),
-                      // subtitle:
-                      //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 10, right: 10),
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.account_balance_wallet),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null
-                                    ? " "
-                                    : dataJson["salary"] + "  (IDR)"),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.pin_drop),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(
-                                    dataJson == null ? " " : dataJson["city"]),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.business_center),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null
-                                    ? " "
-                                    : "Atleast " +
-                                        dataJson["pengalaman"] +
-                                        " years"),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.business),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null
-                                    ? " "
-                                    : dataJson["job_func"]),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.school),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null
-                                    ? " "
-                                    : dataJson["degrees"]),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Icon(Icons.account_balance),
-                              Container(
-                                margin: EdgeInsets.only(left: 10),
-                                child: Text(dataJson == null
-                                    ? " "
-                                    : dataJson["majors"]),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    ButtonTheme.bar(
-                      // make buttons use the appropriate styles for cards
-                      child: ButtonBar(
-                        children: <Widget>[],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Card(
-                elevation: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const ListTile(
-                      leading: Text(
-                        "REQUIREMENTS",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      // title: Text('The Enchanted Nightingale'),
-                      // subtitle:
-                      //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 5, right: 10),
-                      child: Html(
-                        data: dataJson == null ? " " : dataJson["syarat"],
-                      ),
-                    ),
-                    ButtonTheme.bar(
-                      // make buttons use the appropriate styles for cards
-                      child: ButtonBar(
-                        children: <Widget>[],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Card(
-                elevation: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const ListTile(
-                      leading: Text(
-                        "RESPONSIBILITIES",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      // title: Text('The Enchanted Nightingale'),
-                      // subtitle:
-                      //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(left: 5, right: 10),
-                      child: Html(
-                        data:
-                            dataJson == null ? " " : dataJson["tanggungjawab"],
-                      ),
-                    ),
-                    ButtonTheme.bar(
-                      // make buttons use the appropriate styles for cards
-                      child: ButtonBar(
-                        children: <Widget>[],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-           
-          ],
-        )));
+              )));
   }
 }

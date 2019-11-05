@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:siska/views/apply_detail.dart';
+import 'package:siska/views/bookmark_detail.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -231,7 +231,7 @@ class _BookmarkState extends State<Bookmark> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ApplyDetail(
+                                    builder: (context) => BookmarkDetail(
                                       id: dataApply[i]["vacancy_id"],
                                     ),
                                   ));

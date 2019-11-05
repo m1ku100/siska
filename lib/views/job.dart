@@ -12,11 +12,16 @@ import 'package:siska/views/detail.dart';
 import 'package:siska/views/modal_filter.dart';
 
 class Job extends StatefulWidget {
+  final String tile;
+  Job({Key key, @required this.tile}) : super(key: key);
   @override
-  _JobState createState() => _JobState();
+  _JobState createState() => _JobState(tile);
 }
 
 class _JobState extends State<Job> {
+  
+  _JobState(this.tile);
+  final String tile;
   List dataJson;
   double _width;
   double _height;
@@ -121,7 +126,7 @@ class _JobState extends State<Job> {
     //   content: Text("$result"),
     //   duration: Duration(seconds: 3),
     // ));
-    
+
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
     setState(() {
@@ -139,6 +144,9 @@ class _JobState extends State<Job> {
 
   @override
   void initState() {
+    setState(() {
+     _q = tile; 
+    });
     // TODO: implement initState
     this.check_connecti();
   }
@@ -351,7 +359,6 @@ class _JobState extends State<Job> {
                                               ),
                                             ],
                                           ),
-                                          
                                         ],
                                       ),
                                     ),
