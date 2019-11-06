@@ -13,15 +13,17 @@ import 'package:siska/views/modal_filter.dart';
 
 class Job extends StatefulWidget {
   final String tile;
-  Job({Key key, @required this.tile}) : super(key: key);
+  final String industry_id;
+  Job({Key key, @required this.tile , @required this.industry_id }) : super(key: key);
   @override
-  _JobState createState() => _JobState(tile);
+  _JobState createState() => _JobState(tile,industry_id);
 }
 
 class _JobState extends State<Job> {
   
-  _JobState(this.tile);
+  _JobState(this.tile,this.industry_id);
   final String tile;
+  final String industry_id;
   List dataJson;
   double _width;
   double _height;
@@ -146,6 +148,7 @@ class _JobState extends State<Job> {
   void initState() {
     setState(() {
      _q = tile; 
+     _industry = industry_id?? "";
     });
     // TODO: implement initState
     this.check_connecti();

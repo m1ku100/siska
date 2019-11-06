@@ -151,14 +151,26 @@ class _HomeCloneState extends State<HomeClone> {
     );
   }
 
-  void _search(){
-     Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Job(
-                  tile: _searchController.text,
-                ),
-              ));
+  void _search() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Job(
+            tile: _searchController.text,
+            industry_id: null,
+          ),
+        ));
+  }
+
+  void _category(int id) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Job(
+            tile: "",
+            industry_id: id.toString(),
+          ),
+        ));
   }
 
   void _showAlert(String str) {
@@ -270,17 +282,17 @@ class _HomeCloneState extends State<HomeClone> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("New Release", style: TextStyle(fontSize: 16)),
-                        GestureDetector(
-                            onTap: () {
-                              // Navigator.of(context).pushNamed(TRENDING_UI);
-                              print('Showing all');
-                            },
-                            child: Text(
-                              'Show all',
-                              style: TextStyle(
-                                color: Colors.orange[300],
-                              ),
-                            ))
+                        // GestureDetector(
+                        //     onTap: () {
+                        //       // Navigator.of(context).pushNamed(TRENDING_UI);
+                        //       print('Showing all');
+                        //     },
+                        //     child: Text(
+                        //       'Show all',
+                        //       style: TextStyle(
+                        //         color: Colors.orange[300],
+                        //       ),
+                        //     ))
                       ],
                     ),
                   ),
@@ -292,17 +304,17 @@ class _HomeCloneState extends State<HomeClone> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text("Most Popular", style: TextStyle(fontSize: 16)),
-                        GestureDetector(
-                            onTap: () {
-                              //Navigator.of(context).pushNamed(RECOMMEND_UI);
-                              print('Showing all');
-                            },
-                            child: Text(
-                              'Show all',
-                              style: TextStyle(
-                                color: Colors.orange[300],
-                              ),
-                            ))
+                        // GestureDetector(
+                        //     onTap: () {
+                        //       //Navigator.of(context).pushNamed(RECOMMEND_UI);
+                        //       print('Showing all');
+                        //     },
+                        //     child: Text(
+                        //       'Show all',
+                        //       style: TextStyle(
+                        //         color: Colors.orange[300],
+                        //       ),
+                        //     ))
                       ],
                     ),
                   ),
@@ -379,7 +391,7 @@ class _HomeCloneState extends State<HomeClone> {
                       borderRadius: BorderRadius.circular(30.0),
                       borderSide: BorderSide.none),
                 ),
-                onFieldSubmitted: (contex){
+                onFieldSubmitted: (contex) {
                   _search();
                 },
               ),
@@ -453,12 +465,11 @@ class _HomeCloneState extends State<HomeClone> {
                 //         size: _height / 30,
                 //       )),
                 // ),
-                 Opacity(
-                  opacity: 0.5,
-                  child: Container(
-                    width: _height / 30,
-                  )
-                ),
+                Opacity(
+                    opacity: 0.5,
+                    child: Container(
+                      width: _height / 30,
+                    )),
               ],
             )),
       ],
@@ -536,7 +547,7 @@ class _HomeCloneState extends State<HomeClone> {
             ),
           ),
           GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -635,7 +646,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(ELECTRONICS_ITEM_LIST);
-                    print('Routing to Electronics item list');
+                   _category(4);
                   },
                   child: Image.asset(
                     'assets/category/asuransi.png',
@@ -659,7 +670,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(PROPERTIES_ITEM_LIST);
-                      print('Routing to Properties item list');
+                     _category(26);
                     },
                     child: Image.asset(
                       'assets/category/bank.png',
@@ -682,7 +693,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(JOBS_ITEM_LIST);
-                      print('Routing to Jobs item list');
+                      _category(30);
                     },
                     child: Image.asset(
                       'assets/category/construction.png',
@@ -705,7 +716,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(FURNITURE_ITEM_LIST);
-                      print('Routing to Furniture item list');
+                      _category(9);
                     },
                     child: Image.asset(
                       'assets/category/e-commerce.png',
@@ -728,7 +739,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(CARS_ITEM_LIST);
-                    print('Routing to Cars item list');
+                   _category(13);
                   },
                   child: Image.asset(
                     'assets/category/farmasi.png',
@@ -752,7 +763,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(BIKES_ITEM_LIST);
-                    print('Routing to Bikes item list');
+                    _category(29);
                   },
                   child: Image.asset(
                     'assets/category/it.png',
@@ -776,7 +787,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(MOBILES_ITEM_LIST);
-                      print('Routing to Mobiles item list');
+                      _category(49);
                     },
                     child: Image.asset(
                       'assets/category/kesehatan.png',
@@ -799,7 +810,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(PETS_ITEM_LIST);
-                    print('Routing to Pets item list');
+                   _category(38);
                   },
                   child: Image.asset(
                     'assets/category/makan.png',
@@ -830,7 +841,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(ELECTRONICS_ITEM_LIST);
-                    print('Routing to Electronics item list');
+                   _category(4);
                   },
                   child: Image.asset(
                     'assets/category/asuransi.png',
@@ -854,7 +865,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(PROPERTIES_ITEM_LIST);
-                      print('Routing to Properties item list');
+                     _category(26);
                     },
                     child: Image.asset(
                       'assets/category/bank.png',
@@ -877,7 +888,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(JOBS_ITEM_LIST);
-                      print('Routing to Jobs item list');
+                      _category(30);
                     },
                     child: Image.asset(
                       'assets/category/construction.png',
@@ -900,7 +911,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(FURNITURE_ITEM_LIST);
-                      print('Routing to Furniture item list');
+                      _category(9);
                     },
                     child: Image.asset(
                       'assets/category/e-commerce.png',
@@ -923,7 +934,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(CARS_ITEM_LIST);
-                    print('Routing to Cars item list');
+                   _category(13);
                   },
                   child: Image.asset(
                     'assets/category/farmasi.png',
@@ -947,7 +958,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(BIKES_ITEM_LIST);
-                    print('Routing to Bikes item list');
+                    _category(29);
                   },
                   child: Image.asset(
                     'assets/category/it.png',
@@ -971,7 +982,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                     onTap: () {
                       //Navigator.of(context).pushNamed(MOBILES_ITEM_LIST);
-                      print('Routing to Mobiles item list');
+                      _category(49);
                     },
                     child: Image.asset(
                       'assets/category/kesehatan.png',
@@ -994,7 +1005,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(PETS_ITEM_LIST);
-                    print('Routing to Pets item list');
+                   _category(38);
                   },
                   child: Image.asset(
                     'assets/category/makan.png',
@@ -1018,7 +1029,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                   _category(40);
                   },
                   child: Image.asset(
                     'assets/category/manufaktur_1.png',
@@ -1042,7 +1053,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                   _category(41);
                   },
                   child: Image.asset(
                     'assets/category/media.png',
@@ -1066,7 +1077,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                    _category(45);
                   },
                   child: Image.asset(
                     'assets/category/otomotif.png',
@@ -1090,7 +1101,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                   _category(47);
                   },
                   child: Image.asset(
                     'assets/category/pendidikan.png',
@@ -1114,7 +1125,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                    _category(58);
                   },
                   child: Image.asset(
                     'assets/category/produk_konsumen.png',
@@ -1138,7 +1149,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                    _category(59);
                   },
                   child: Image.asset(
                     'assets/category/property.png',
@@ -1162,7 +1173,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                    _category(61);
                   },
                   child: Image.asset(
                     'assets/category/retail.png',
@@ -1186,7 +1197,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                   _category(62);
                   },
                   child: Image.asset(
                     'assets/category/service.png',
@@ -1210,7 +1221,7 @@ class _HomeCloneState extends State<HomeClone> {
                 GestureDetector(
                   onTap: () {
                     //Navigator.of(context).pushNamed(FASHION_ITEM_LIST);
-                    print('Routing to Fashion item list');
+                    _category(63);
                   },
                   child: Image.asset(
                     'assets/category/telekomunikasi.png',

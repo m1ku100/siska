@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         SPLASH_SCREEN: (BuildContext context) => SplashScreen(),
         PAY_TM: (BuildContext context) => MainTab(),
         LOGIN_SCREEN: (BuildContext context) => LoginScreen(),
-        JOB_SCREEN : (BuildContext context) => Job(),
+        JOB_SCREEN : (BuildContext context) => Job(tile: "",industry_id: null, ),
         PROFILE : (BuildContext context) => Profile()
       },
     );

@@ -36,6 +36,7 @@ class _MainTabState extends State<MainTab> {
               MaterialPageRoute(
                 builder: (context) => Job(
                   tile: "",
+                  industry_id: null,
                 ),
               ));
         },
