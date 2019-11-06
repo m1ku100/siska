@@ -14,19 +14,20 @@ import 'package:siska/views/modal_filter.dart';
 class Job extends StatefulWidget {
   final String tile;
   final String industry_id;
-  Job({Key key, @required this.tile , @required this.industry_id }) : super(key: key);
+  Job({Key key, @required this.tile, @required this.industry_id})
+      : super(key: key);
   @override
-  _JobState createState() => _JobState(tile,industry_id);
+  _JobState createState() => _JobState(tile, industry_id);
 }
 
 class _JobState extends State<Job> {
-  
-  _JobState(this.tile,this.industry_id);
+  _JobState(this.tile, this.industry_id);
   final String tile;
   final String industry_id;
   List dataJson;
   double _width;
   double _height;
+  bool _isloading = true;
   int _limit = 10;
   var _q = "";
   var _loc = "";
@@ -82,6 +83,11 @@ class _JobState extends State<Job> {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         this.getData();
+         new Future.delayed(Duration(seconds: 2), () {
+          setState(() {
+            _isloading = false;
+          });
+        });
       }
     } on SocketException catch (_) {
       _showAlert("You'are not connected");
@@ -120,7 +126,14 @@ class _JobState extends State<Job> {
     var result = await Navigator.push(
         context,
         new MaterialPageRoute(
-          builder: (BuildContext context) => new ModalFilter(),
+          builder: (BuildContext context) => new ModalFilter(
+            title: _q,
+            salary: _salary,
+            location: _loc,
+            degree: _degree,
+            function: _jobfunc,
+            industri: _industry,
+          ),
           fullscreenDialog: true,
         ));
 
@@ -131,24 +144,26 @@ class _JobState extends State<Job> {
 
     var data = jsonDecode(result);
     // print("hasil filter :"+data.toString());
-    setState(() {
-      _q = data["q"];
-      _jobfunc = data["jobfunc_ids"];
-      _industry = data["industry_ids"];
-      _degree = data["degree_ids"];
-      _salary = data["salary_ids"];
-      _loc = data["loc"];
-      dataJson = null;
-    });
+    if (data["load"]) {
+      setState(() {
+        _isloading = true;
+        _q = data["q"];
+        _jobfunc = data["jobfunc_ids"];
+        _industry = data["industry_ids"];
+        _degree = data["degree_ids"];
+        _salary = data["salary_ids"];
+        _loc = data["loc"];
+      });
 
-    check_connecti();
+      check_connecti();
+    }
   }
 
   @override
   void initState() {
     setState(() {
-     _q = tile; 
-     _industry = industry_id?? "";
+      _q = tile;
+      _industry = industry_id ?? "";
     });
     // TODO: implement initState
     this.check_connecti();
@@ -197,7 +212,7 @@ class _JobState extends State<Job> {
         backgroundColor: Colors.orange[200],
         label: Icon(Icons.sort),
       ),
-      body: dataJson == null
+      body: _isloading
           ? Container(
               padding: EdgeInsets.only(top: 300),
               child: Center(

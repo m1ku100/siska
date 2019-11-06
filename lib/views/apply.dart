@@ -83,6 +83,47 @@ class _ApplyState extends State<Apply> {
     }
   }
 
+  void _openDetail(BuildContext context, String id) async {
+    var result = await Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => ApplyDetail(
+            id: id,
+          ),
+          fullscreenDialog: true,
+        ));
+
+    var data = jsonDecode(result);
+    // print("hasil filter :"+data.toString());
+     if (data["load"]) {
+      setState(() {
+        isLoading = true;
+      });
+      _showAlertSuccess("Yeey!!", "Vacancy is successfully aborted!!", "assets/images/nutmeg.gif");
+      check_connecti();
+    }
+  }
+
+  void _showAlertSuccess(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
+
+    AssetGiffyDialog alert = new AssetGiffyDialog(
+      image: Image.asset(assets),
+      title: Text(
+        titl,
+        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+      ),
+      description: Text(desc),
+      onOkButtonPressed: () {
+        Navigator.pop(context);
+      },
+      onlyOkButton: true,
+      buttonOkColor: Colors.orange[200],
+    );
+
+    showDialog(context: context, child: alert);
+  }
+
   void _modalBottomSheetMenu() {
     showModalBottomSheet(
         context: context,
@@ -203,13 +244,7 @@ class _ApplyState extends State<Apply> {
                     },
                       onTap: () {
                         print(dataApply[i]["id"]);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ApplyDetail(
-                                id: dataApply[i]["vacancy_id"],
-                              ),
-                            ));
+                       _openDetail(context, dataApply[i]["vacancy_id"].toString());
                       },
                       child: Card(
                         elevation: 3,
