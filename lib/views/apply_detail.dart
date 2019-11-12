@@ -122,7 +122,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
         _showAlert("Oops!!", dataChange['message'], "assets/images/load.gif");
       } else if (dataChange['success'] == true) {
         // _showAlert("Yeey!!", dataChange['message'], "assets/images/nutmeg.gif");
-         Navigator.pop(context, jsonEncode({"load": true}));
+        Navigator.pop(context, jsonEncode({"load": true}));
       }
     }
   }
@@ -295,6 +295,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
                       ),
                     ))
                 : SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                     child: Column(
                     children: <Widget>[
                       Container(
@@ -537,6 +538,78 @@ class _ApplyDetailState extends State<ApplyDetail> {
                                   ],
                                 ),
                               ),
+                              ButtonTheme.bar(
+                                // make buttons use the appropriate styles for cards
+                                child: ButtonBar(
+                                  children: <Widget>[],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        child: Card(
+                          elevation: 3,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              const ListTile(
+                                leading: Text(
+                                  "Time Line Date",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                // title: Text('The Enchanted Nightingale'),
+                                // subtitle:
+                                //     Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Row(
+                                        children: <Widget>[
+                                          Text("Recruitment date : "),
+                                          Text(dataJson[
+                                                  "recruitmentDate_start"] ??
+                                              " - "),
+                                          Text(" - "),
+                                          Text(
+                                              dataJson["recruitmentDate_end"] ??
+                                                  " - ")
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Text("Online Quiz : "),
+                                          Text(dataJson["quizDate_start"] ??
+                                              " - "),
+                                          Text(" - "),
+                                          Text(
+                                              dataJson["quizDate_end"] ?? " - ")
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Text("Psycho Test Date : "),
+                                          Text(dataJson[
+                                                  "psychoTestDate_start"] ??
+                                              " - "),
+                                          Text(" - "),
+                                          Text(dataJson["psychoTestDate_end"] ??
+                                              " - ")
+                                        ],
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Text("Interview  : "),
+                                          Text(dataJson["interview_date"] ??
+                                              " - "),
+                                        ],
+                                      )
+                                    ],
+                                  )),
                               ButtonTheme.bar(
                                 // make buttons use the appropriate styles for cards
                                 child: ButtonBar(

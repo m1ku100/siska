@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:siska/views/apply_detail.dart';
+import 'package:siska/views/invitation_detail.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -38,6 +38,61 @@ class _InvitationState extends State<Invitation> {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<String> _acceptInvitation(int id) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      var data = jsonEncode({"id": id});
+
+      http.Response item = await http.post(
+          Uri.encodeFull(
+              "https://kariernesia.com/jwt/vacancy/invitation/accept?token=" +
+                  _token),
+          body: data,
+          headers: {"Accept": "application/json"});
+
+      var datauser = json.decode(item.body);
+
+      if (datauser.length == 0) {
+        setState(() {});
+      } else {
+        if (datauser['success'] == false) {
+          setState(() {
+            isLoading = false;
+          });
+        } else if (datauser['success'] == true) {
+          setState(() {
+            isLoading = false;
+          });
+          _showAlertReponse(
+              "Yeey!!", datauser['message'], "assets/images/nutmeg.gif");
+          check_connecti();
+        }
+      }
+    } catch (e) {}
+  }
+
+  void _showAlertReponse(String titl, String desc, String assets) {
+    if (titl.isEmpty) return; //if text is empty
+
+    AssetGiffyDialog alert = new AssetGiffyDialog(
+      image: Image.asset(assets),
+      title: Text(
+        titl,
+        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+      ),
+      description: Text(desc),
+      onOkButtonPressed: () {
+        Navigator.pop(context);
+      },
+      onlyOkButton: true,
+      buttonOkColor: Colors.orange[200],
+    );
+
+    showDialog(context: context, child: alert);
   }
 
   void _showAlert(String str) {
@@ -126,6 +181,36 @@ class _InvitationState extends State<Invitation> {
     // if (mounted) setState(() {});
     print("Loading Complete");
     _refreshController.loadComplete();
+  }
+
+  void _showDialogdelete(int id) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Warning"),
+          content: new Text("Are you sure want to reject this invitation ?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text(
+                "Delete",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onPressed: () {},
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -231,7 +316,7 @@ class _InvitationState extends State<Invitation> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ApplyDetail(
+                                    builder: (context) => InvitationDetail(
                                       id: dataApply[i]["vacancy_id"],
                                     ),
                                   ));
@@ -256,6 +341,53 @@ class _InvitationState extends State<Invitation> {
                                     ),
                                     subtitle: Text("Applied at " +
                                         dataApply[i]["updated_at"]),
+                                    trailing: dataApply[i]["status"]
+                                        ? Container(
+                                            child: FlatButton(
+                                            onPressed: () {},
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: <Widget>[
+                                                Text("Applied", style: TextStyle(color: Colors.green),),
+                                                Icon(Icons.check, color: Colors.green)
+                                              ],
+                                            ),
+                                          ))
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _showDialogdelete(
+                                                      dataApply[i]["id"]);
+                                                },
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.redAccent,
+                                                  child: Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _acceptInvitation(
+                                                      dataApply[i]["id"]);
+                                                },
+                                                child: CircleAvatar(
+                                                  backgroundColor:
+                                                      Colors.lightGreen,
+                                                  child: Icon(
+                                                    Icons.check,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                   )
                                 ],
                               ),

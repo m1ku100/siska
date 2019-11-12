@@ -1625,7 +1625,7 @@ class _ProfileState extends State<Profile> {
                                   height: 15.0,
                                 ),
                                 Text(
-                                  "120",
+                                  dataJson["apply"].toString() ?? "0",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange[300],
@@ -1636,11 +1636,11 @@ class _ProfileState extends State<Profile> {
                           ),
                           Container(
                             margin:
-                                EdgeInsets.only(left: 20, right: 10, top: 20),
+                                EdgeInsets.only(left: 30, right: 10, top: 20),
                             child: Column(
                               children: <Widget>[
                                 Text(
-                                  "Bookmarked",
+                                  "Invitations",
                                   style: TextStyle(
                                       color: Colors.black54,
                                       fontWeight: FontWeight.bold,
@@ -1650,7 +1650,7 @@ class _ProfileState extends State<Profile> {
                                   height: 15.0,
                                 ),
                                 Text(
-                                  "120",
+                                  dataJson["invite"].toString() ?? "0",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.orange[300],
