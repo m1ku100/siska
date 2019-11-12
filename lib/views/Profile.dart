@@ -760,7 +760,7 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.assignment_ind),
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
-                                        child: Text( dataJson["name"]?? " - "),
+                                        child: Text(dataJson["name"] ?? " - "),
                                       )
                                     ],
                                   ),
@@ -770,17 +770,8 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["birthday"]?? " - "),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Icon(Icons.wc),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 10),
-                                        child: Text( dataJson["seeker"]["data"]
-                                                ["gender"] ?? " - "),
+                                                ["birthday"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -790,7 +781,19 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["relationship"]?? " - "),
+                                                ["gender"] ??
+                                            " - "),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Icon(Icons.wc),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 10),
+                                        child: Text(dataJson["seeker"]["data"]
+                                                ["relationship"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -800,7 +803,8 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["nationality"]?? " - "),
+                                                ["nationality"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -811,9 +815,13 @@ class _ProfileState extends State<Profile> {
                                         margin: EdgeInsets.only(left: 10),
                                         child: Row(
                                           children: <Widget>[
-                                            Text( dataJson["seeker"]["data"] ["lowest_salary"] ?? " 0 "),
+                                            Text(dataJson["seeker"]["data"]
+                                                    ["lowest_salary"] ??
+                                                " 0 "),
                                             Text(" - "),
-                                            Text(dataJson["seeker"]["data"] ["highest_salary"]?? " 0 ")
+                                            Text(dataJson["seeker"]["data"]
+                                                    ["highest_salary"] ??
+                                                " 0 ")
                                           ],
                                         ),
                                       )
@@ -873,7 +881,8 @@ class _ProfileState extends State<Profile> {
                                       Icon(Icons.email),
                                       Container(
                                           margin: EdgeInsets.only(left: 10),
-                                          child: Text(dataJson["email"]?? " - "))
+                                          child:
+                                              Text(dataJson["email"] ?? " - "))
                                     ],
                                   ),
                                   Row(
@@ -882,7 +891,8 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["phone"]?? " - "),
+                                                ["phone"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -892,7 +902,8 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["address"]?? " - "),
+                                                ["address"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -902,7 +913,8 @@ class _ProfileState extends State<Profile> {
                                       Container(
                                         margin: EdgeInsets.only(left: 10),
                                         child: Text(dataJson["seeker"]["data"]
-                                                ["zip_code"]?? " - "),
+                                                ["zip_code"] ??
+                                            " - "),
                                       )
                                     ],
                                   ),
@@ -964,9 +976,13 @@ class _ProfileState extends State<Profile> {
                                                 image: AssetImage(
                                                     "assets/menu/exp.png"),
                                               ),
-                                              title: Text(_exp[i]["company"]),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              title: Text(_exp[i]["job_title"]),
+                                              subtitle: Text('Working at ' +
+                                                  _exp[i]["company"] +
+                                                  "\n" +
+                                                  _exp[i]["start_date"] +
+                                                  " - " +
+                                                  _exp[i]["end_date"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
@@ -1067,8 +1083,10 @@ class _ProfileState extends State<Profile> {
                                               ),
                                               title:
                                                   Text(_edu[i]["school_name"]),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              subtitle: Text(_edu[i]
+                                                      ["degrees"] +
+                                                  " of " +
+                                                  _edu[i]["majors"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
@@ -1163,15 +1181,16 @@ class _ProfileState extends State<Profile> {
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            const ListTile(
+                                            ListTile(
                                               leading: Image(
                                                 image: AssetImage(
                                                     "assets/menu/cert.png"),
                                               ),
-                                              title: Text(
-                                                  'The Enchanted Nightingale'),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              title: Text(_training[i]["name"]),
+                                              subtitle: Text('Issued by ' +
+                                                  _training[i]["issuedby"] +
+                                                  " on " +
+                                                  _training[i]["issueddate"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
@@ -1193,7 +1212,11 @@ class _ProfileState extends State<Profile> {
                                                         )
                                                       ],
                                                     ),
-                                                    onPressed: () {_showDialogdelete("training", _training[i]["id"]);},
+                                                    onPressed: () {
+                                                      _showDialogdelete(
+                                                          "training",
+                                                          _training[i]["id"]);
+                                                    },
                                                   ),
                                                   FlatButton(
                                                     child: Row(
@@ -1263,15 +1286,19 @@ class _ProfileState extends State<Profile> {
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            const ListTile(
+                                            ListTile(
                                               leading: Image(
                                                 image: AssetImage(
                                                     "assets/menu/org.png"),
                                               ),
-                                              title: Text(
-                                                  'The Enchanted Nightingale'),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              title: Text(_org[i]["name"]),
+                                              subtitle: Text("as " +
+                                                  _org[i]["title"] +
+                                                  "\n" +
+                                                  " Period " +
+                                                  _org[i]["start_period"] +
+                                                  " - " +
+                                                  _org[i]["end_period"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
@@ -1364,15 +1391,14 @@ class _ProfileState extends State<Profile> {
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            const ListTile(
+                                            ListTile(
                                               leading: Image(
                                                 image: AssetImage(
                                                     "assets/menu/skill.png"),
                                               ),
-                                              title: Text(
-                                                  'The Enchanted Nightingale'),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              title: Text(_skill[i]["name"]),
+                                              subtitle: Text('Skill Level : ' +
+                                                  _skill[i]["level"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
@@ -1466,15 +1492,17 @@ class _ProfileState extends State<Profile> {
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: <Widget>[
-                                            const ListTile(
+                                            ListTile(
                                               leading: Image(
                                                 image: AssetImage(
                                                     "assets/menu/lang.png"),
                                               ),
-                                              title: Text(
-                                                  'The Enchanted Nightingale'),
-                                              subtitle: Text(
-                                                  'Music by Julie Gable. Lyrics by Sidney Stein.'),
+                                              title: Text(_lang[i]["name"]),
+                                              subtitle: Text('Spoken Level :' +
+                                                  _lang[i]["spoken_lvl"] +
+                                                  "\n" +
+                                                  "Written Level :" +
+                                                  _lang[i]["written_lvl"]),
                                             ),
                                             ButtonTheme.bar(
                                               // make buttons use the appropriate styles for cards
