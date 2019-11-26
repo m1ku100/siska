@@ -355,7 +355,7 @@ class _ApplyDetailState extends State<ApplyDetail> {
                                               ],
                                             ),
                                             onPressed: () {
-                                              _abort();
+                                               _showDialog();
                                             },
                                           )
                                         : RaisedButton(
